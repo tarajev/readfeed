@@ -4,11 +4,12 @@ using backend.Model;
 using Redis.OM;
 using StackExchange.Redis;
 using Microsoft.VisualBasic;
+using System.Text.RegularExpressions;
 namespace backend.Controllers;
 
 [ApiController]
 [Route("NewsArticle")]
-public class NewsArticleController : ControllerBase
+public partial class NewsArticleController : ControllerBase
 {
     private readonly RedisCollection<NewsArticle> _news;
     private readonly RedisConnectionProvider _provider;
@@ -17,6 +18,8 @@ public class NewsArticleController : ControllerBase
         _provider = provider;
         _news = (RedisCollection<NewsArticle>)provider.RedisCollection<NewsArticle>();
     }
+
+    #region CRUD
 
     [HttpPost("AddNewsArticle")]
     public async Task<IActionResult> AddNewsArticle([FromBody] NewsArticle article)
@@ -33,6 +36,7 @@ public class NewsArticleController : ControllerBase
         if (article == null)
             return BadRequest("Article was not found.");
 
+        article.CreatedAt = article.CreatedAt.ToLocalTime();
         return Ok(article);
     }
 
@@ -65,4 +69,101 @@ public class NewsArticleController : ControllerBase
         else
             return BadRequest("Došlo je do greške");
     }
+    #endregion
+
+    #region Search
+
+    [HttpGet("GetMostPopularNewsArticles/{skip}/{take}")] //korisnik u startu bira par kategorija ili ukoliko ne onda najpopularnije iz svih kategorija?
+    public async Task<IActionResult> GetMostPopularNewsArticles(int skip, int take, [FromQuery] string[] followedCategories)
+    {
+        var articles = await _news
+        .Where(article => followedCategories.Contains(article.Category))
+        .OrderByDescending(article => article.Score)
+        .Skip(skip)
+        .Take(take)
+        .ToListAsync();
+        
+        if (!articles.Any())
+            return BadRequest("Article was not found.");
+
+        return Ok(articles);
+    }
+
+    [HttpGet("GetMostRecentNewsArticles/{skip}/{take}")]
+    public async Task<IActionResult> GetMostRecentNewsArticles(int skip, int take, [FromQuery] string[] followedCategories)
+    {
+        var articles = await _news
+        .Where(article => followedCategories.Contains(article.Category))
+        .OrderByDescending(article => article.CreatedAt)
+        .Skip(skip)
+        .Take(take)
+        .ToListAsync();
+
+        if (!articles.Any())
+            return BadRequest("Article was not found.");
+
+        return Ok(articles);
+    }
+
+    [HttpGet("SearchByTitleAndTags/{skip}/{take}")]
+    public async Task<IActionResult> SearchByTitleAndTags(int skip, int take, [FromQuery] string[] tags, [FromQuery] string title)
+    {
+        
+        var articles = await _news
+        .Where(article => tags.Contains(article.Tags) || article.Title.Contains(title)) //pretvara se u lowercase kod fulltextsearch-a tako da nema potrebe da se konvertuje
+        .Skip(skip)
+        .Take(take)
+        .ToListAsync();
+
+        if (!articles.Any())
+            return BadRequest("Article was not found.");
+
+        return Ok(articles);
+    }
+
+    [HttpGet("FullTextSearch/{skip}/{take}/{query}")]
+    public async Task<IActionResult> FullTextSearch(int skip, int take, string query)
+    {
+        string[] tags = [..MyRegex().Matches(query).Select(match => match.Value)];
+
+        var articles = await _news
+        .Where(article => tags.Contains(article.Tags) || article.Title.Contains(query) || article.Content.Contains(query))
+        .Skip(skip)
+        .Take(take)
+        .ToListAsync();
+
+        if (!articles.Any())
+            return BadRequest("Article was not found.");
+
+        return Ok(articles);
+    }
+
+    [HttpPut("UpvoteNewsArticle{id}")]
+    public async Task<IActionResult> UpvoteNewsArticle(string id){
+
+        var article = await _news.FindByIdAsync($"Article:{id}");
+        if(article!=null)
+            article.Score++;
+
+        await _news.SaveAsync();
+
+        return Ok(article);
+    }
+
+    [HttpPut("DownvoteNewsArticle{id}")]
+    public async Task<IActionResult> DownvoteNewsArticle(string id){
+
+        var article = await _news.FindByIdAsync($"Article:{id}");
+        if(article!=null)
+            article.Score--;
+
+        await _news.SaveAsync();
+
+        return Ok(article);
+    }
+
+    [GeneratedRegex(@"\w+")]
+    private static partial Regex MyRegex();
+
+    #endregion
 }

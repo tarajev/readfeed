@@ -10,12 +10,20 @@ public class IndexCreationService : IHostedService
     {
         _provider = provider;
     }
-    
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _provider.Connection.CreateIndexAsync(typeof(NewsArticle));
-        await _provider.Connection.CreateIndexAsync(typeof(User));
-        await _provider.Connection.CreateIndexAsync(typeof(Author));
+        var info = (await _provider.Connection.ExecuteAsync("FT._LIST")).ToArray().Select(x => x.ToString());
+
+        if (info.All(x => x != "newsarticle-idx"))
+            await _provider.Connection.CreateIndexAsync(typeof(NewsArticle));
+
+        if (info.All(x => x != "user-idx"))
+            await _provider.Connection.CreateIndexAsync(typeof(User));
+
+        if (info.All(x => x != "author-idx"))
+            await _provider.Connection.CreateIndexAsync(typeof(Author));
+        
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

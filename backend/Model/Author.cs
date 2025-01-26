@@ -15,6 +15,8 @@ public class Author
     [Indexed]
     public required string Email { get; set; }
 
+    public string? Bio { get; set; }
+
     [Indexed]
     public required string Newspaper { get; set; }
 }
