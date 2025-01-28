@@ -82,7 +82,7 @@ public partial class NewsArticleController : ControllerBase
         .Skip(skip)
         .Take(take)
         .ToListAsync();
-        
+
         if (!articles.Any())
             return BadRequest("Article was not found.");
 
@@ -108,7 +108,7 @@ public partial class NewsArticleController : ControllerBase
     [HttpGet("SearchByTitleAndTags/{skip}/{take}")]
     public async Task<IActionResult> SearchByTitleAndTags(int skip, int take, [FromQuery] string[] tags, [FromQuery] string title)
     {
-        
+
         var articles = await _news
         .Where(article => tags.Contains(article.Tags) || article.Title.Contains(title)) //pretvara se u lowercase kod fulltextsearch-a tako da nema potrebe da se konvertuje
         .Skip(skip)
@@ -124,7 +124,7 @@ public partial class NewsArticleController : ControllerBase
     [HttpGet("FullTextSearch/{skip}/{take}/{query}")]
     public async Task<IActionResult> FullTextSearch(int skip, int take, string query)
     {
-        string[] tags = [..MyRegex().Matches(query).Select(match => match.Value)];
+        string[] tags = [.. MyRegex().Matches(query).Select(match => match.Value)];
 
         var articles = await _news
         .Where(article => tags.Contains(article.Tags) || article.Title.Contains(query) || article.Content.Contains(query))
@@ -139,10 +139,11 @@ public partial class NewsArticleController : ControllerBase
     }
 
     [HttpPut("UpvoteNewsArticle{id}")]
-    public async Task<IActionResult> UpvoteNewsArticle(string id){
+    public async Task<IActionResult> UpvoteNewsArticle(string id)
+    {
 
         var article = await _news.FindByIdAsync($"Article:{id}");
-        if(article!=null)
+        if (article != null)
             article.Score++;
 
         await _news.SaveAsync();
@@ -151,10 +152,11 @@ public partial class NewsArticleController : ControllerBase
     }
 
     [HttpPut("DownvoteNewsArticle{id}")]
-    public async Task<IActionResult> DownvoteNewsArticle(string id){
+    public async Task<IActionResult> DownvoteNewsArticle(string id)
+    {
 
         var article = await _news.FindByIdAsync($"Article:{id}");
-        if(article!=null)
+        if (article != null)
             article.Score--;
 
         await _news.SaveAsync();
@@ -164,6 +166,64 @@ public partial class NewsArticleController : ControllerBase
 
     [GeneratedRegex(@"\w+")]
     private static partial Regex MyRegex();
+
+    #endregion
+
+    #region ReadLater
+
+    /// <summary>
+    /// Koristimo sorted set za readlater sekciju svakog od korisnika, score je timestamp kada vest ističe. Pri pribavljanju prvo brišemo sve 
+    /// elemente sa datumom koji je prošao (zastarele vesti) i vraćamo preostale, validne.
+    /// </summary>
+
+    [HttpPost("AddToReadLater/{userId}/{articleId}")]
+    public async Task<IActionResult> AddToReadLater(string userId, string articleId)
+    {
+
+        var articleKey = $"Article:{articleId}";
+        var setKey = $"user:{userId}:readlater";
+
+        var ttl = await _provider.Connection.ExecuteAsync("TTL", articleKey);
+
+        if (ttl > 0)
+        {
+            var expirationTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + ttl;
+
+            var result = await _provider.Connection.ExecuteAsync("ZADD", setKey, expirationTimestamp, articleId);
+            return Ok("Article was successfully added to ReadLater section.");
+        }
+        else
+            return BadRequest("Article is no longer available");
+    }
+
+    [HttpGet("GetReadLaterArticles/{userId}")]
+    public async Task<List<NewsArticle?>> GetReadLaterArticles(string userId)
+    {
+        var setKey = $"user:{userId}:readlater";
+        var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        //prvo brišemo vesti koje su istekle i ako ne postoje ne vraća grešku
+        await _provider.Connection.ExecuteAsync("ZREMRANGEBYSCORE", setKey, "-inf", currentTimestamp);
+
+        var result = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", setKey, currentTimestamp, "+inf");
+        var ids = result.ToArray().Select(x => x.ToString()).ToList();
+
+        var articles = await _news.FindByIdsAsync(ids);
+
+        return [.. articles.Select(x => x.Value)]; //vraća prazan niz ako ne postoji sorted set 
+    }
+
+    [HttpDelete("RemoveArticleFromReadLater/{userId}/{articleId}")]
+    public async Task<IActionResult> RemoveArticleFromReadLater(string userId, string articleId)
+    {
+        var setKey = $"user:{userId}:readlater";
+        var result = await _provider.Connection.ExecuteAsync("ZREM", setKey, articleId);
+        
+        if (result == 1)
+            return Ok("Article was successfully deleted from ReadLater");
+        else
+            return BadRequest("There was an error deleting an article from ReadLater");
+    }
 
     #endregion
 }
