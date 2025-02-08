@@ -4,6 +4,8 @@ import { Page } from '../components/BasicComponents';
 import Tabs from '../components/Tabs'
 import  '../assets/colors.css'
 import '../assets/animations.css'
+import NewsFeed from './NewsFeed';
+
 
 export default function DrawMainPage() {
   const { APIUrl, contextUser } = useContext(AuthorizationContext)
@@ -18,9 +20,9 @@ export default function DrawMainPage() {
 
   // TODO - Da se popuni stranica
   return (
-    <Page overlayActive={overlayActive} loading={true} overlayHandler={setOverlayActive}>
 
-      <Tabs DrawTab1={()=>{}} DrawTab2={()=>{}}></Tabs>
+    <Page overlayActive={overlayActive} loading={true} overlayHandler={setOverlayActive}>
+      <Tabs DrawTab1={() => <NewsFeed/> } DrawTab2={() => { } }></Tabs>
 
     </Page>
   );

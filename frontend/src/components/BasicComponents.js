@@ -14,6 +14,7 @@ import { default as MUIButton } from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DrawLoadingScreen from '../views/LoadingScreen';
+import SlidingPanel from '../components/SlidingPanel.js';
 import AuthorizationContext from '../context/AuthorizationContext';
 
 export function Page({ overlayActive, overlayHandler, children, loading = false, timeout = 500 }) {
@@ -61,6 +62,7 @@ export function Page({ overlayActive, overlayHandler, children, loading = false,
         <div className="py-12  shadow-lg h-fit mx-auto max-w-3xl lg:max-w-6xl xl:max-w-7xl " style={{ minHeight: `calc(100vh - 150px)` }}>
           {children}
         </div>
+        <SlidingPanel />
         <Footer />
       </div>
     </>
@@ -176,7 +178,7 @@ export function Link({ route, disabled, href, onClick, preventTab, className, ch
       disabled={disabled}
       tabIndex={preventTab || disabled ? -1 : 0}
       onClick={disabled ? null : onClick}
-      className={`${disabled ? "text-gray-600 cursor-default" : "text-indigo-400 cursor-pointer hover:underline focus:ring-2 ring-violet-600"} outline-none ${className}`}
+      className={`${disabled ? "text-gray-600 cursor-default" : "text-indigo-400 cursor-pointer hover:underline"} outline-none ${className}`}
     >
       {children}
     </Goto>
