@@ -1,0 +1,139 @@
+.star-rating {
+  filter: invert(76%) sepia(42%) saturate(2377%) hue-rotate(359deg) brightness(101%) contrast(104%);
+}
+
+.filter-indigo {
+  filter: brightness(0) saturate(100%) invert(14%) sepia(81%) saturate(5862%) hue-rotate(277deg) brightness(62%) contrast(144%);
+}
+
+.filter-gray {
+  filter: invert(77%) sepia(9%) saturate(357%) hue-rotate(179deg) brightness(84%) contrast(86%);
+}
+
+.filter-white {
+  filter: invert(100%) sepia(0%) saturate(2%) hue-rotate(59deg) brightness(111%) contrast(101%);
+}
+
+.card-selected {
+  box-shadow: 0 0 6px 3px #301448 !important;
+}
+
+.outline-indigo {
+  outline-color: #5700a2;
+}
+
+.outline-indigo:hover {
+  outline-color: #7832b4;
+}
+
+.outline-indigo:focus {
+  outline-color: #7832b4;
+}
+
+.color-button {
+  background-color: #5700a2;
+  border-width: 1px;
+  border-color: #5700a2;
+}
+
+.color-button:hover {
+  background-color: #7832b4;
+  border-width: 1px;
+  border-color: #5700a2;
+}
+
+.color-button:active {
+  background-color: #5700a2;
+  border-width: 1px;
+  border-color: #5700a2;
+  color: rgb(200 200 200)
+}
+
+.color-button:disabled {
+  background-color: rgb(17 24 39);
+  border: 1px solid #7832b4;
+  color: rgb(130 137 150);
+}
+
+.color-button-sel {
+  background-color: #7832b4;
+  border: 1px solid #3C0071;
+  color: white;
+  cursor: default;
+}
+
+.color-button-unsel {
+  background-color: #3C0071;
+  border: 1px solid #3C0071;
+  color: lightgray;
+}
+
+.color-button-unsel:hover {
+  background-color: #7832b4;
+  border-color: #3C0071;
+  color: white;
+  animation: bg-appear .3s;
+}
+
+.color-button-unsel:not(hover) {
+  animation: bg-disappear .3s;
+}
+
+.color-button-list {
+  background-color: black;
+  color: white;
+}
+
+.color-button-list:hover {
+  background-color: #5700a2;
+  color: black;
+  animation: bg-appear .2s;
+}
+
+.color-button-list:not(hover) {
+  background-color: black;
+  color: white;
+  animation: bg-disappear .2s;
+}
+
+.color-button-list:active {
+  background-color: #5700a2;
+  color: black;
+}
+
+.color-button-list:focus {
+  outline: 1px solid #5700a2;
+}
+
+.color-button-list:disabled {
+  background-color: rgb(229 231 235);
+  color: white;
+  animation: none;
+}
+
+.color-button-taken:hover {
+  background-color: #5700a2;
+  color: black;
+}
+
+.item {
+  background-color: black;
+  color: white;
+}
+
+.item:hover {
+  background-color: #5700a2;
+  color: black;
+}
+
+.color-button-darker {
+  background-color: #1e1b4b;
+  border-width: 1px;
+  border-color: #1e1b4b;
+}
+
+.color-button-darker:hover {
+  background-color: #7832b4;
+  border-width: 1px;
+  border-color: #5700a2;
+}

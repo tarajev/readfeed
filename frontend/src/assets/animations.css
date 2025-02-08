@@ -1,0 +1,164 @@
+body.preload * {
+  animation-duration: 0s !important;
+}
+
+.fade-in {
+  opacity: 1;
+  animation: fadeIn .2s ease-in;
+}
+
+.fade-out {
+  opacity: 0;
+  animation: fadeOut .2s ease-in;
+}
+
+.fade-in-loading {
+  opacity: 1;
+  animation: fadeIn .1s ease-in;
+}
+
+.fade-out-loading {
+  opacity: 0;
+  animation: fadeOut .1s ease-in;
+}
+
+.animated-shadow {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.animated-shadow:hover {
+  animation: fadeInShadow .2s forwards;
+}
+
+.animated-shadow:not(hover) {
+  animation: fadeOutShadow .2s forwards;
+}
+
+.appear-from-top {
+  opacity: 1;
+  position: relative;
+  z-index: 1;
+  animation: appear-from-top .3s;
+}
+
+.disappear-to-top {
+  opacity: 0;
+  position: relative;
+  z-index: 1;
+  margin-bottom: -40px;
+  animation: disappear-to-top .3s;
+}
+
+@keyframes fadeInShadow {
+  0% {
+    box-shadow: 0 8px 10px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  100% {
+    box-shadow: 0 8px 10px -1px #3C0071;
+  }
+}
+
+@keyframes fadeOutShadow {
+  0% {
+    box-shadow: 0 8px 10px -1px #3C0071;
+  }
+  100% {
+    box-shadow: 0 8px 10px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes bg-appear {
+  0% {
+    background-color: #3C0071;
+    color: lightgray
+  }
+
+  100% {
+    background-color: #7832b4;
+    color: white;
+  }
+}
+
+@keyframes bg-disappear {
+  0% {
+    background-color: #7832b4;
+    color: white;
+  }
+
+  100% {
+    background-color: #3C0071;
+    color: lightgray;
+  }
+}
+
+@keyframes appear-from-top {
+  0% {
+    opacity: 0;
+    position: relative;
+    z-index: 1;
+    margin-bottom: -40px;
+    transform: translateY(-40px);
+  }
+
+  100% {
+    opacity: 1;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0px;
+    transform: translateY(0);
+  }
+}
+
+@keyframes disappear-to-top {
+  0% {
+    opacity: 1;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0px;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    position: relative;
+    z-index: 1;
+    margin-bottom: -40px;
+    transform: translateY(-40px);
+  }
+}
+
+@keyframes rotateY {
+  0% {
+    transform: rotateY(0);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.rotate-card {
+  animation: rotateY 1s ease-in-out;
+}
