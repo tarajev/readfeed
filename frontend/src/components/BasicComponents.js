@@ -3,6 +3,7 @@ import { Link as Goto, useLocation } from "react-router-dom";
 import Header from './Header'
 import Footer from './Footer'
 import exitIcon from '../resources/img/exit-icon.png'
+import exitIconBlack from '../resources/img/exit-icon-black.png'
 import eye from '../resources/img/password-eye.png'
 import eyeSlashed from '../resources/img/password-eye-slashed.png'
 import '../assets/colors.css'
@@ -160,7 +161,7 @@ export function FormButton({ text, disabled, onClick, loading, className }) {
         type="submit"
         disabled={disabled}
         onClick={onClick}
-        className={`w-full px-4 py-2 text-sm text-white text-center color-button rounded-md focus:ring-4 ring-violet-600 outline-none ${className}`}
+        className={`w-full px-4 py-2 text-sm text-white text-center bg-accent rounded-md hover:bg-[#a9222f] ${className}`}
       >
         <div className='flex items-center justify-center'>
           {loading && <CircularProgress size={15} className='mr-2' sx={{'color': 'white'}} />}{text}
@@ -218,7 +219,7 @@ export function Exit({ preventTab, centered, disabled, notFocusable, className, 
         <img
           tabIndex={-1}
           className={`h-auto outline-none ${className}`}
-          src={exitIcon}
+          src={exitIconBlack}
         />
       </a>
     </div>
@@ -265,10 +266,10 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
   return (
     <label className={`block mt-3 ${inline ? "flex flex-nowrap items-center" : ""}`}>
       <div className={`${inline ? "mr-2" : ""} ${labelClass}`}>
-        <span className={`text-md text-gray-400 ${textClass}`}>
+        <span className={`text-md text-gray-900 ${textClass}`}>
           {text}
         </span>
-        <span className="text-md text-red-600">
+        <span className="text-md text-red">
           {required ? "*" : ""}
         </span>
       </div>
@@ -283,7 +284,7 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
           onChange={onChange}
           onBlur={onBlur}
           pattern={pattern}
-          className={`block w-full mt-1 rounded-md text-gray-200 bg-gray-700 border border-gray-800 p-2 focus:ring outline-none ${alertCond ? "ring ring-red-300" : "ring-indigo-600"} ${className}`}
+          className={`block w-full mt-1 rounded-md text-gray-200 bg-gray-700 border border-gray-800 p-2 focus:ring outline-none ${alertCond ? "ring ring-accent" : "ring-secondary"} ${className}`}
         />
       ) : (
         <input
@@ -296,10 +297,10 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
           disabled={disabled}
           onBlur={onBlur}
           pattern={pattern}
-          className={`block w-full mt-1 rounded-md text-gray-200 bg-gray-700 border border-gray-800 p-2 focus:ring outline-none ${alertCond ? "ring ring-red-300" : "ring-indigo-600"} ${className}`}
+          className={`block w-full mt-1 rounded-md text-gray-900 bg-secondary border border-gray-800 p-2  outline-none ${alertCond ? "ring ring-accent" : ""} ${className}`}
         />
       )}
-      {alertCond && <p className="text-red-400 text-xs mt-1">{alertText}</p>}
+      {alertCond && <p className="text-accent text-xs mt-1">{alertText}</p>}
     </label>
   );
 }
@@ -314,7 +315,7 @@ export function Password({ text, textClass, labelClass, required, visibility, in
   return (
     <label className={`block mt-3 ${inline ? "flex flex-nowrap items-center" : ""}`}>
       <div className={`${inline ? "mr-2" : ""} ${labelClass}`}>
-        <span className={`text-md text-gray-400 ${textClass}`}>
+        <span className={`text-md text-gray-800 ${textClass}`}>
           {text}
         </span>
         <span className="text-md text-red-600">
@@ -328,14 +329,14 @@ export function Password({ text, textClass, labelClass, required, visibility, in
           spellCheck={false}
           onChange={onChange}
           onBlur={onBlur}
-          className={`block w-full pr-8 mt-1 rounded-md text-gray-300 bg-gray-700 border border-gray-800 p-2 focus:ring ring-indigo-600 outline-none ${alertCond ? "ring ring-red-300" : ""} ${className}`}
+          className={`block w-full pr-8 mt-1 rounded-md text-black bg-gray-700 border border-gray-800 p-2 outline-none ${alertCond ? "ring ring-accent" : ""} ${className}`}
         />
         <img
           src={visibility ? (showPassword ? eyeSlashed : eye) : ""}
           className={`absolute ${inline ? "mt-1.5" : "mt-1"} top-2 right-2 cursor-pointer w-5 h-auto filter-gray`}
           onClick={togglePasswordVisibility}
         />
-        {alertCond && <p className="text-red-400 text-xs mt-1">{alertText}</p>}
+        {alertCond && <p className="text-accent text-xs mt-1">{alertText}</p>}
       </div>
     </label>
   );

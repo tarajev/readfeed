@@ -1,5 +1,7 @@
 using backend.HostedServices;
 using Redis.OM;
+using StackExchange.Redis;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +30,14 @@ builder.Services.AddCors(options =>
         });
     });
 
+
 builder.Services.AddHostedService<IndexCreationService>();
+
+
 builder.Services.AddSingleton(new RedisConnectionProvider(builder.Configuration["REDIS_CONNECTION_STRING"]));
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
+
+builder.Services.AddHostedService<NewsSubscriberService>();
 
 var app = builder.Build();
 

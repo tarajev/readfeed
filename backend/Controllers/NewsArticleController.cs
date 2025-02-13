@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Redis.OM.Searching;
 using backend.Model;
 using Redis.OM;
-using StackExchange.Redis;
 using Microsoft.VisualBasic;
 using System.Text.RegularExpressions;
+
+using System.Text.Json;
+using StackExchange.Redis;
 namespace backend.Controllers;
 
 [ApiController]
@@ -13,10 +15,12 @@ public partial class NewsArticleController : ControllerBase
 {
     private readonly RedisCollection<NewsArticle> _news;
     private readonly RedisConnectionProvider _provider;
-    public NewsArticleController(RedisConnectionProvider provider)
+    private readonly IConnectionMultiplexer _multiplexer;
+    public NewsArticleController(RedisConnectionProvider provider, IConnectionMultiplexer multiplexer)
     {
         _provider = provider;
         _news = (RedisCollection<NewsArticle>)provider.RedisCollection<NewsArticle>();
+        _multiplexer = multiplexer;
     }
 
     #region CRUD
@@ -25,6 +29,11 @@ public partial class NewsArticleController : ControllerBase
     public async Task<IActionResult> AddNewsArticle([FromBody] NewsArticle article)
     {
         await _news.InsertAsync(article, TimeSpan.FromDays(14));
+
+        var subscriber = _multiplexer.GetSubscriber();
+        var message = JsonSerializer.Serialize(article);
+        await subscriber.PublishAsync(RedisChannel.Literal("news_channel"), message);
+
         return Ok("New Article was successfully added");
     }
 
@@ -93,7 +102,7 @@ public partial class NewsArticleController : ControllerBase
     public async Task<IActionResult> GetMostRecentNewsArticles(int skip, int take, [FromQuery] string[] followedCategories)
     {
         var articles = await _news
-        .Where(article => followedCategories.Contains(article.Category))
+        .Where(article => followedCategories.Contains(article.Category)) //article.Category.Intersect(followedCategories).Any probati
         .OrderByDescending(article => article.CreatedAt)
         .Skip(skip)
         .Take(take)
@@ -218,7 +227,7 @@ public partial class NewsArticleController : ControllerBase
     {
         var setKey = $"user:{userId}:readlater";
         var result = await _provider.Connection.ExecuteAsync("ZREM", setKey, articleId);
-        
+
         if (result == 1)
             return Ok("Article was successfully deleted from ReadLater");
         else

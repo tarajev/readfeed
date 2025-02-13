@@ -3,6 +3,7 @@ using Redis.OM;
 
 namespace backend.HostedServices;
 
+
 public class IndexCreationService : IHostedService
 {
     private readonly RedisConnectionProvider _provider;

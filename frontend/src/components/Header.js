@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import logo from '../resources/img/neowatchlogo.png';
 import { Input, Link } from '../components/BasicComponents';
-//import { DrawLogin, DrawRegistration } from "../views/LoginRegistration";
+import { DrawLogin, DrawRegistration } from "../views/LoginRegistration";
 import iconBurger from "../resources/img/burger-menu.png"
 import searchIcon from "../resources/img/icon-search.png"
 import BurgerMenu from "./BurgerMenu";
@@ -56,8 +56,8 @@ export default function Header({ overlayActive, overlayHandler }) {
 
   return (
     <div className={`pt-16 sticky top-0 z-50`}>
-      {/*showLogin && <div className="overlay" onClick={handleLoginClick}></div>*/}
-      {/*showLogin && <DrawLoginForm showRegistration={showRegistration} exitRegistration={exitRegistration} toggleRegistration={toggleRegistration} handleLoginClick={handleLoginClick} />*/}
+      {showLogin && <div className="overlay" onClick={handleLoginClick}></div>}
+      {showLogin && <DrawLoginForm showRegistration={showRegistration} exitRegistration={exitRegistration} toggleRegistration={toggleRegistration} handleLoginClick={handleLoginClick} />}
       <nav className="absolute shadow-xl top-0 left-0 w-full border-b bg-[#F4F1EC] md:flex-row md:flex-nowrap md:justify-start flex items-center p-8">
         <div className="w-full mx-auto items-center flex justify-between  md:flex-nowrap flex-wrap md:px-10 px-2">
           <div className="relative flex hidden lg:block pr-4"> {/*Search postaje deo BurgerMenu za manje ekrane */}
@@ -96,7 +96,7 @@ export default function Header({ overlayActive, overlayHandler }) {
   );
 }
 
-/*
+
 function DrawLoginForm({ showRegistration, exitRegistration, toggleRegistration, handleLoginClick }) {
   return (
     <>
@@ -108,4 +108,4 @@ function DrawLoginForm({ showRegistration, exitRegistration, toggleRegistration,
     </>
   );
 }
-  */
+  

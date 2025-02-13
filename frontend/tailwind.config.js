@@ -7,6 +7,13 @@ module.exports = {
     extend: {
       fontFamily: {
         playfair: ["Playfair Display", "serif"],
+      },
+      colors: {
+        primary: "#F4F1EC",  // Svetlo bež
+        secondary: "#ECE9E4", // Bež
+        dark: "#07090D",      // Varijanta crne
+        light: "#FDFDFE",     // Skoro bela
+        accent: "#BF2734"     // Tamno crvena
       }
     },
   },
