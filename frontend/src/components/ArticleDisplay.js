@@ -21,7 +21,7 @@ export default function ArticleDisplay({ article, onClick }) {
             </div>
             <div className="flex mb-2 md:text-lg">
                 <span className="text-accent font-bold font-playfair">{article.category}</span>
-                <span className="text-dark ml-auto opacity-80 font-playfair">{article.createdAt}</span>
+                <span className="text-dark ml-auto opacity-80 font-playfair">{ (new Date(article.createdAt)).toLocaleDateString("en-GB")}</span>
             </div>
             <div className="flex mb-2">
                 <span className="break-normal text-dark sm:text-md md:text-xl font-extrabold font-playfair">{article.title}</span>

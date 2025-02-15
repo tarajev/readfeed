@@ -15,7 +15,7 @@ function App() {
     bio: "",
   });
 
-  const APIUrl = "http://localhost:5227/";
+  const APIUrl = "http://localhost:5000/";
   const value = { APIUrl, contextUser, contextSetUser };
 
   var storageUser = localStorage.getItem('NeowatchUser');

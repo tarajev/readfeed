@@ -45,7 +45,7 @@ public partial class NewsArticleController : ControllerBase
         if (article == null)
             return BadRequest("Article was not found.");
 
-        article.CreatedAt = article.CreatedAt.ToLocalTime();
+       // article.CreatedAt = article.CreatedAt.ToLocalTime();
         return Ok(article);
     }
 

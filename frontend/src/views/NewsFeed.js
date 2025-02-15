@@ -1,12 +1,18 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
+import axios from 'axios';
 import AuthorizationContext from '../context/AuthorizationContext'
 import Tag from '../components/Tag'
 import ArticleDisplay from '../components/ArticleDisplay'
+import arrowDownIconFilled from "../resources/img/arrow-down-filled.png"
 
 export default function NewsFeed() {
     const { APIUrl, contextUser } = useContext(AuthorizationContext)
     const [criteria, setCriteria] = useState("popular")
-    const [tags, setTags] = useState(["World", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
+    const [tags, setTags] = useState(["World Politics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
+    const [latestNews, setLatestNews] = useState([]);
+    const [popularNews, setPopularNews] = useState([]);
+    const [popularIndex, setPopularIndex] = useState(0);
+    const [latestIndex, setLatestIndex] = useState(0);
 
     const testNews = [
         { title: "New AI technology is changing the way developers work", category: "Technology", createdAt: "2025-02-11", score: 120 },
@@ -18,10 +24,66 @@ export default function NewsFeed() {
         { title: "New research reveals secrets to a healthy lifestyle", category: "Health", createdAt: "2025-02-07", score: 80 }
     ];
 
+    const getMostPopularNews = async (skip, take) => {
+        var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}`;
+        await axios.get(APIUrl + route, {
+            params: {
+                followedCategories: tags
+            },
+            paramsSerializer: {
+                indexes: null
+            }
+        })
+            .then(result => {
+                setPopularNews(prevNews => {
+                    const newArticles = result.data.filter(
+                        article => !prevNews.some(existing => existing.id === article.id)
+                    );
+                    return [...prevNews, ...newArticles];
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            })
+
+    }
+
+    const getLatestNews = async (skip, take) => {
+        var route = `NewsArticle/GetMostRecentNewsArticles/${skip}/${take}`;
+        await axios.get(APIUrl + route, {
+            params: {
+                followedCategories: tags
+            },
+            paramsSerializer: {
+                indexes: null
+            }
+        })
+            .then(result => {
+                setLatestNews(prevNews => {
+                    const newArticles = result.data.filter(
+                        article => !prevNews.some(existing => existing.id === article.id)
+                    );
+                    return [...prevNews, ...newArticles];
+                });
+                console.log(result.data)
+            })
+            .catch(error => {
+                console.log(error);
+            })
+
+    }
+
+    useEffect(() => {
+        console.log(criteria);
+        if (criteria === "popular")
+            getMostPopularNews(popularIndex * 20, 20);
+        else
+            getLatestNews(latestIndex * 20, 20);
+    }, [criteria, tags, popularIndex])
 
     return (<>
         <div className='grid h-full w-full'>
-            <div className='flex justify-between'>
+            <div className='flex justify-between' >
                 <div className='flex flex-wrap items-center'>
                     {tags.map((tag, index) => (
                         <Tag key={index} text={tag} onClick={() => setTags(tags.filter(t => t !== tag))}></Tag>
@@ -41,10 +103,29 @@ export default function NewsFeed() {
                     </select>
                 </div>
             </div>
+
             <div className='flex gap-8 flex-wrap justify-evenly mt-20'>
-                {testNews.map((article, index) => (
-                    < ArticleDisplay key={index} article={article} ></ArticleDisplay>
-                ))}
+                {criteria === "popular" ?
+                    popularNews.map((article, index) => (
+                        < ArticleDisplay key={index} article={article} ></ArticleDisplay>
+                    )) :
+                    latestNews.map((article, index) => (
+                        < ArticleDisplay key={index} article={article} ></ArticleDisplay>
+                    ))
+                }
+            </div>
+            <div>
+                <button
+                    onClick={() => {
+                        if (criteria === "popular")
+                            setPopularIndex(index => index + 1);
+                        else
+                            setLatestIndex(index => index + 1);
+                    }}
+                    className="mt-10 p-2 place-self-center bg-secondary shadow-md text-white rounded-full flex items-center gap-2 hover:bg-light"
+                >
+                    <img src={arrowDownIconFilled} alt="Load More" className="w-4 h-4" />
+                </button>
             </div>
         </div >
     </>);
