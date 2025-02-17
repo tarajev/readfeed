@@ -8,10 +8,10 @@ export default function DrawAddInterests() {
     return (<>
         <div>
             <Select
-                id="genreDropdown"
-                options={genreOptions}
+                id="tagsDropdown"
+                options={tagsOptions}
                 isMulti
-                value={genreOptions.filter((option) => selectedGenres.includes(option.value))}
+                value={tagsOptions.filter((option) => selectedTags.includes(option.value))}
                 onChange={handleDropdownChange}
                 placeholder="Choose genres..."
                 className="border-violet-800 border-4 rounded-2xl"

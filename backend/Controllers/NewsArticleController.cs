@@ -11,7 +11,7 @@ namespace backend.Controllers;
 
 [ApiController]
 [Route("NewsArticle")]
-public partial class NewsArticleController : ControllerBase
+public partial class NewsArticleController : ControllerBase //ne znam zasto je partial kad je samo ova klasa???
 {
     private readonly RedisCollection<NewsArticle> _news;
     private readonly RedisConnectionProvider _provider;
@@ -45,7 +45,7 @@ public partial class NewsArticleController : ControllerBase
         if (article == null)
             return BadRequest("Article was not found.");
 
-       // article.CreatedAt = article.CreatedAt.ToLocalTime();
+        // article.CreatedAt = article.CreatedAt.ToLocalTime();
         return Ok(article);
     }
 
@@ -146,31 +146,103 @@ public partial class NewsArticleController : ControllerBase
 
         return Ok(articles);
     }
+    #endregion
 
-    [HttpPut("UpvoteNewsArticle{id}")]
-    public async Task<IActionResult> UpvoteNewsArticle(string id)
+    #region Upvote/Downvote
+    // videti u kom trenutku će se brisati iz ovih setova vesti
+
+    [HttpPut("UpvoteNewsArticle/{userId}/{articleId}")]
+    public async Task<IActionResult> UpvoteNewsArticle(string userId, string articleId)
     {
-
-        var article = await _news.FindByIdAsync($"Article:{id}");
+        var article = await _news.FindByIdAsync($"Article:{articleId}");
         if (article != null)
             article.Score++;
 
         await _news.SaveAsync();
 
-        return Ok(article);
+        var articleKey = $"Article:{articleId}";
+        var setKey = $"user:{userId}:upvotes";
+
+        var ttl = await _provider.Connection.ExecuteAsync("TTL", articleKey);
+
+        if (ttl > 0)
+        {
+            var expirationTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + ttl;
+            var result = await _provider.Connection.ExecuteAsync("ZADD", setKey, expirationTimestamp, articleId);
+            if (result > 0)
+                return Ok("Article was successfully added to upvotes");
+            else
+                return BadRequest("Error adding an article to upvotes");
+        }
+        else
+            return BadRequest("Article is no longer available");
     }
 
-    [HttpPut("DownvoteNewsArticle{id}")]
-    public async Task<IActionResult> DownvoteNewsArticle(string id)
+
+    [HttpPut("DownvoteNewsArticle/{userId}/{articleId}")]
+    public async Task<IActionResult> DownvoteNewsArticle(string userId, string articleId)
     {
 
-        var article = await _news.FindByIdAsync($"Article:{id}");
+        var article = await _news.FindByIdAsync($"Article:{articleId}");
         if (article != null)
             article.Score--;
 
         await _news.SaveAsync();
 
-        return Ok(article);
+        var articleKey = $"Article:{articleId}";
+        var setKey = $"user:{userId}:downvotes";
+
+        var ttl = await _provider.Connection.ExecuteAsync("TTL", articleKey);
+
+        if (ttl > 0)
+        {
+            var expirationTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + ttl;
+            var result = await _provider.Connection.ExecuteAsync("ZADD", setKey, expirationTimestamp, articleId);
+            if (result > 0)
+                return Ok("Article was successfully added to downvote");
+            else
+                return BadRequest("Error adding an article to downvotes");
+        }
+        else
+            return BadRequest("Article is no longer available");
+    }
+
+    [HttpPut("RemoveUpvoteNewsArticle/{userId}/{articleId}")]
+    public async Task<IActionResult> RemoveUpvoteNewsArticle(string userId, string articleId)
+    {
+        var article = await _news.FindByIdAsync($"Article:{articleId}");
+        if (article != null)
+            article.Score--;
+
+        await _news.SaveAsync();
+
+        var setKey = $"user:{userId}:upvotes";
+
+        var result = await _provider.Connection.ExecuteAsync("ZREM", setKey, articleId);
+        if (result > 0)
+            return Ok("Article was successfully removed from upvotes");
+        else
+            return BadRequest("Error removing an article upvotes");
+
+    }
+
+    [HttpPut("RemoveDownvoteNewsArticle/{userId}/{articleId}")]
+    public async Task<IActionResult> RemoveDownvoteNewsArticle(string userId, string articleId)
+    {
+        var article = await _news.FindByIdAsync($"Article:{articleId}");
+        if (article != null)
+            article.Score++;
+
+        await _news.SaveAsync();
+
+        var setKey = $"user:{userId}:downvotes";
+        
+        var result = await _provider.Connection.ExecuteAsync("ZREM", setKey, articleId);
+        if (result > 0)
+            return Ok("Article was successfully removed from downvotes");
+        else
+            return BadRequest("Error removing an article downvotes");
+
     }
 
     [GeneratedRegex(@"\w+")]
