@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Redis.OM.Searching;
 using backend.Model;
 using Redis.OM;
-using StackExchange.Redis;
-using Microsoft.VisualBasic;
+
 namespace backend.Controllers;
 
 [ApiController]

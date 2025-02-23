@@ -2,7 +2,7 @@ using Redis.OM.Modeling;
 
 namespace backend.Model;
 
-[Document(StorageType = StorageType.Json, Prefixes = new[] {"Author"})]
+[Document(StorageType = StorageType.Json, Prefixes = new[] { "Author" })]
 public class Author
 {
     [RedisIdField]
