@@ -60,7 +60,7 @@ export function Page({ overlayActive, overlayHandler, children, loading = false,
       <PreloadHandler />
       <div className='bg-[#F4F1EC] min-h-screen'>
         <Header overlayActive={overlayActive} overlayHandler={overlayHandler} />
-        <div className="py-12  shadow-lg h-fit mx-auto max-w-3xl lg:max-w-6xl xl:max-w-7xl " style={{ minHeight: `calc(100vh - 150px)` }}>
+        <div className="py-12 shadow-lg h-fit mx-auto max-w-3xl lg:max-w-6xl xl:max-w-7xl " style={{ minHeight: `calc(100vh - 150px)` }}>
           {children}
         </div>
         <SlidingPanel />
@@ -269,7 +269,7 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
         <span className={`text-md text-gray-900 ${textClass}`}>
           {text}
         </span>
-        <span className="text-md text-red">
+        <span className="text-md text-red-600">
           {required ? "*" : ""}
         </span>
       </div>
