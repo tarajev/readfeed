@@ -1,12 +1,13 @@
-import MainPage from "./views/MainPage"
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthorizationContext from './context/AuthorizationContext';
 import './App.css';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React, { useState } from 'react';
+import MainPage from "./views/MainPage"
+import NotFound from './views/NotFound';
+import AuthorPage from './views/AuthorPage';
 import ArticlePage from "./views/ArticlePage";
 
 function App() {
-
   const [contextUser, contextSetUser] = useState({
     username: "",
     role: "Guest",
@@ -19,7 +20,7 @@ function App() {
   const APIUrl = "http://localhost:5000/";
   const value = { APIUrl, contextUser, contextSetUser };
 
-  var storageUser = localStorage.getItem('NeowatchUser');
+  var storageUser = localStorage.getItem('NeowatchUser'); // Da se izmeni ovo Neowatch i ostalo sto je prekopirano
 
   if (contextUser.role == "Guest"  && storageUser) { //ako se osvezi stranica
     var storageUserJson = JSON.parse(storageUser);
@@ -33,6 +34,8 @@ function App() {
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/articlepage/:title" element={<ArticlePage/>}></Route>
+            <Route path="/author/:id" element={<AuthorPage />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </AuthorizationContext.Provider>

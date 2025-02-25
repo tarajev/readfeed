@@ -140,7 +140,7 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
               onBlur={handleEmailBlur}
               onChange={handleEmailChange}
               alertCond={(!isEmailValid && emailTouched) || invalidEmail}
-              alertText={invalidEmail ? "Email je već u upotrebi!" : "Neispravan email format!"}
+              alertText={invalidEmail ? "E-Mail is already in use!" : "Invalid E-Mail format!"}
             />
             <Password
               text="Password"
@@ -157,7 +157,7 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
               onChange={handleConfirmPasswordChange}
               onBlur={handlePasswordBlur}
               alertCond={!passwordMatch && passwordTouched}
-              alertText="Password do not match!"
+              alertText="Passwords do not match!"
               className={"!bg-secondary !text-black"}
             />
             <FormButton
@@ -306,7 +306,7 @@ export function DrawLogin({ onRegisterClick, handleLoginClick }) {
               type="email"
               value={email}
               alertCond={!isEmailValid}
-              alertText="Neispravan email format!"
+              alertText="Invalid E-Mail format!"
               onChange={handleEmailChange}
               onBlur={handleEmailBlur}
             />
