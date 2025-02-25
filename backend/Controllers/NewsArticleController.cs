@@ -82,8 +82,8 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
 
     #region Search
 
-    [HttpGet("GetMostPopularNewsArticles/{skip}/{take}")] //korisnik u startu bira par kategorija ili ukoliko ne onda najpopularnije iz svih kategorija?
-    public async Task<IActionResult> GetMostPopularNewsArticles(int skip, int take, [FromQuery] string[] followedCategories)
+    [HttpGet("GetMostPopularNewsArticles/{skip}/{take}/{userId}")] //korisnik u startu bira par kategorija ili ukoliko ne onda najpopularnije iz svih kategorija?
+    public async Task<IActionResult> GetMostPopularNewsArticles(int skip, int take, [FromQuery] string[] followedCategories, string userId)
     {
         var articles = await _news
         .Where(article => followedCategories.Contains(article.Category))
@@ -95,11 +95,41 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         if (!articles.Any())
             return BadRequest("Article was not found.");
 
-        return Ok(articles);
+        var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string upvotedSetKey = $"user:{userId}:upvotes";
+        string downvotedSetKey = $"user:{userId}:downvotes";
+        string readLaterSetKey = $"user:{userId}:readlater";
+
+        var upvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", upvotedSetKey, currentTimestamp, "+inf");
+        var downvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", downvotedSetKey, currentTimestamp, "+inf");
+        var bookmarks = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", readLaterSetKey, currentTimestamp, "+inf");
+
+        var upvotesIds = upvotes.ToArray().Select(x => x.ToString()).ToList();
+        var downvotesIds = downvotes.ToArray().Select(x => x.ToString()).ToList();
+        var bookmarksIds = bookmarks.ToArray().Select(x => x.ToString()).ToList();
+
+        var result = articles.Select(article => new NewsArticle
+        {
+            Id = article.Id,
+            Title = article.Title,
+            Content = article.Content,
+            Score = article.Score,
+            Category = article.Category,
+            Tags = article.Tags,
+            Photos = article.Photos,
+            Link = article.Link,
+            Author = article.Author,
+            CreatedAt = article.CreatedAt,
+            Upvoted = upvotesIds.Contains(article.Id),
+            Downvoted = downvotesIds.Contains(article.Id),
+            Bookmarked = bookmarksIds.Contains(article.Id)
+        }).ToList();
+
+        return Ok(result);
     }
 
-    [HttpGet("GetMostRecentNewsArticles/{skip}/{take}")]
-    public async Task<IActionResult> GetMostRecentNewsArticles(int skip, int take, [FromQuery] string[] followedCategories)
+    [HttpGet("GetMostRecentNewsArticles/{skip}/{take}/{userId}")]
+    public async Task<IActionResult> GetMostRecentNewsArticles(int skip, int take, [FromQuery] string[] followedCategories, string userId)
     {
         var articles = await _news
         .Where(article => followedCategories.Contains(article.Category)) //article.Category.Intersect(followedCategories).Any probati
@@ -111,7 +141,38 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         if (!articles.Any())
             return BadRequest("Article was not found.");
 
-        return Ok(articles);
+
+        var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string upvotedSetKey = $"user:{userId}:upvotes";
+        string downvotedSetKey = $"user:{userId}:downvotes";
+        string readLaterSetKey = $"user:{userId}:readlater";
+
+        var upvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", upvotedSetKey, currentTimestamp, "+inf");
+        var downvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", downvotedSetKey, currentTimestamp, "+inf");
+        var bookmarks = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", readLaterSetKey, currentTimestamp, "+inf");
+
+        var upvotesIds = upvotes.ToArray().Select(x => x.ToString()).ToList();
+        var downvotesIds = downvotes.ToArray().Select(x => x.ToString()).ToList();
+        var bookmarksIds = bookmarks.ToArray().Select(x => x.ToString()).ToList();
+
+        var result = articles.Select(article => new NewsArticle
+        {
+            Id = article.Id,
+            Title = article.Title,
+            Content = article.Content,
+            Score = article.Score,
+            Category = article.Category,
+            Tags = article.Tags,
+            Photos = article.Photos,
+            Link = article.Link,
+            Author = article.Author,
+            CreatedAt = article.CreatedAt,
+            Upvoted = upvotesIds.Contains(article.Id),
+            Downvoted = downvotesIds.Contains(article.Id),
+            Bookmarked = bookmarksIds.Contains(article.Id)
+        }).ToList();
+
+        return Ok(result);
     }
 
     [HttpGet("SearchByTitleAndTags/{skip}/{take}")]
@@ -236,7 +297,7 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         await _news.SaveAsync();
 
         var setKey = $"user:{userId}:downvotes";
-        
+
         var result = await _provider.Connection.ExecuteAsync("ZREM", setKey, articleId);
         if (result > 0)
             return Ok("Article was successfully removed from downvotes");

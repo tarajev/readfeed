@@ -3,6 +3,7 @@ import AuthorizationContext from './context/AuthorizationContext';
 import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useState } from 'react';
+import ArticlePage from "./views/ArticlePage";
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<MainPage />} />
+            <Route path="/articlepage/:title" element={<ArticlePage/>}></Route>
           </Routes>
         </BrowserRouter>
       </AuthorizationContext.Provider>

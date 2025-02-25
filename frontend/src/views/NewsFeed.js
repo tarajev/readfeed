@@ -23,9 +23,10 @@ export default function NewsFeed() {
         { title: "Political debate sparks heated reactions", category: "Politics", createdAt: "2025-02-08", score: 65 },
         { title: "New research reveals secrets to a healthy lifestyle", category: "Health", createdAt: "2025-02-07", score: 80 }
     ];
+        
 
     const getMostPopularNews = async (skip, take) => {
-        var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}`;
+        var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${"username1"}`;
         await axios.get(APIUrl + route, {
             params: {
                 followedCategories: tags
@@ -49,7 +50,7 @@ export default function NewsFeed() {
     }
 
     const getLatestNews = async (skip, take) => {
-        var route = `NewsArticle/GetMostRecentNewsArticles/${skip}/${take}`;
+        var route = `NewsArticle/GetMostRecentNewsArticles/${skip}/${take}/${"username1"}`;
         await axios.get(APIUrl + route, {
             params: {
                 followedCategories: tags
@@ -82,6 +83,7 @@ export default function NewsFeed() {
     }, [criteria, tags, popularIndex])
 
     return (<>
+        {sessionStorage.setItem('scrollPosition', window.scrollY)}
         <div className='grid h-full w-full'>
             <div className='flex justify-between' >
                 <div className='flex flex-wrap items-center'>

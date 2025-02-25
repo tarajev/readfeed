@@ -33,4 +33,9 @@ public class NewsArticle //da li cemo da imamo komentare?
 
     [Indexed(Sortable = true)]
     public int Score { get; set; } = 0;
+
+    public bool? Upvoted { get; set; }
+
+   public bool? Downvoted { get; set; }
+    public bool? Bookmarked { get; set; }
 }
