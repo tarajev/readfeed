@@ -5,7 +5,7 @@ import Tag from '../components/Tag'
 import ArticleDisplay from '../components/ArticleDisplay'
 import arrowDownIconFilled from "../resources/img/arrow-down-filled.png"
 
-export default function NewsFeed() {
+export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSection}) {
     const { APIUrl, contextUser } = useContext(AuthorizationContext)
     const [criteria, setCriteria] = useState("popular")
     const [tags, setTags] = useState(["World Politics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
@@ -23,7 +23,7 @@ export default function NewsFeed() {
         { title: "Political debate sparks heated reactions", category: "Politics", createdAt: "2025-02-08", score: 65 },
         { title: "New research reveals secrets to a healthy lifestyle", category: "Health", createdAt: "2025-02-07", score: 80 }
     ];
-        
+
 
     const getMostPopularNews = async (skip, take) => {
         var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${"username1"}`;
@@ -109,10 +109,10 @@ export default function NewsFeed() {
             <div className='flex gap-8 flex-wrap justify-evenly mt-20'>
                 {criteria === "popular" ?
                     popularNews.map((article, index) => (
-                        < ArticleDisplay key={index} article={article} ></ArticleDisplay>
+                        < ArticleDisplay key={article.id} article={article} addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection}></ArticleDisplay>
                     )) :
                     latestNews.map((article, index) => (
-                        < ArticleDisplay key={index} article={article} ></ArticleDisplay>
+                        < ArticleDisplay key={article.id} article={article} addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection}></ArticleDisplay>
                     ))
                 }
             </div>

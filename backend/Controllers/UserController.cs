@@ -3,10 +3,12 @@ using Redis.OM.Searching;
 using backend.Model;
 using Redis.OM;
 using backend.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend.Controllers;
 
 [ApiController]
+[Authorize(Roles = "User")]
 [Route("User")]
 public class UserController : ControllerBase
 {
@@ -18,6 +20,7 @@ public class UserController : ControllerBase
         _users = (RedisCollection<User>)provider.RedisCollection<User>();
     }
 
+    [AllowAnonymous]
     [HttpPost("AddUser")]
     public async Task<IActionResult> AddUser([FromBody] User user)
     {
@@ -26,7 +29,7 @@ public class UserController : ControllerBase
         if (existingUser != null)
             return BadRequest($"User: '{user.Username}' already exists.");
 
-        // Da se doda da li postji e-mail adresa.
+        // Da se doda da li postji e-mail adresa. ideja mi je da se pozove CheckEmail na frontu pre ovoga? ali mozemo da izmenimo i kod autora i ovde
 
         user.Password = PasswordHasher.HashPassword(user.Password);
 

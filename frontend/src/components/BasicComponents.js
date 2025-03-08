@@ -18,7 +18,7 @@ import DrawLoadingScreen from '../views/LoadingScreen';
 import SlidingPanel from '../components/SlidingPanel.js';
 import AuthorizationContext from '../context/AuthorizationContext';
 
-export function Page({ overlayActive, overlayHandler, children, loading = false, timeout = 500 }) {
+export function Page({ overlayActive, overlayHandler, children, slidingPanel, loading = false, timeout = 500 }) {
   const [pageLoading, setPageLoading] = useState(loading);
   const { contextUser, contextSetUser } = useContext(AuthorizationContext);
   const location = useLocation();
@@ -60,10 +60,10 @@ export function Page({ overlayActive, overlayHandler, children, loading = false,
       <PreloadHandler />
       <div className='bg-[#F4F1EC] min-h-screen'>
         <Header overlayActive={overlayActive} overlayHandler={overlayHandler} />
-        <div className="py-12 shadow-lg h-fit mx-auto max-w-3xl lg:max-w-6xl xl:max-w-7xl " style={{ minHeight: `calc(100vh - 150px)` }}>
+        <div className="py-12  shadow-lg h-fit mx-auto max-w-3xl lg:max-w-6xl xl:max-w-7xl " style={{ minHeight: `calc(100vh - 150px)` }}>
           {children}
         </div>
-        <SlidingPanel />
+        {slidingPanel}
         <Footer />
       </div>
     </>
@@ -164,7 +164,7 @@ export function FormButton({ text, disabled, onClick, loading, className }) {
         className={`w-full px-4 py-2 text-sm text-white text-center bg-accent rounded-md hover:bg-[#a9222f] ${className}`}
       >
         <div className='flex items-center justify-center'>
-          {loading && <CircularProgress size={15} className='mr-2' sx={{'color': 'white'}} />}{text}
+          {loading && <CircularProgress size={15} className='mr-2' sx={{ 'color': 'white' }} />}{text}
         </div>
       </button>
     </div>

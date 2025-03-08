@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Redis.OM.Searching;
 using backend.Model;
 using Redis.OM;
+using Microsoft.AspNetCore.Authorization;
+using backend.Extensions;
 
 namespace backend.Controllers;
 
@@ -20,6 +22,7 @@ public class AuthorController : ControllerBase
     [HttpPost("AddAuthor")]
     public async Task<IActionResult> AddAuthor([FromBody] Author author)
     {
+        author.Password = PasswordHasher.HashPassword(author.Password);
         await _authors.InsertAsync(author);
         return Ok("New author was successfully added");
     }
@@ -35,6 +38,7 @@ public class AuthorController : ControllerBase
         return Ok(author);
     }
 
+    [Authorize(Roles = "Author")]
     [HttpPut("UpdateAuthor/{id}")]
     public async Task<IActionResult> UpdateAuthor([FromRoute] string id, [FromBody] Author Author) //update za bio i newspaper
     {
@@ -55,6 +59,7 @@ public class AuthorController : ControllerBase
         return Ok("Author's information was successfully updated.");
     }
 
+    [Authorize(Roles = "Author")]
     [HttpDelete("DeleteAuthor/{id}")]
     public IActionResult DeleteAuthor([FromRoute] string id)
     {

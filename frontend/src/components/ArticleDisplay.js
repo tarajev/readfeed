@@ -10,7 +10,7 @@ import bookmarkIconFilled from "../resources/img/icon-bookmark-filled.png"
 import vienna from "../images/vienna.jpg"
 import { useNavigate } from "react-router-dom"
 
-export default function ArticleDisplay({ article, saveScrollPosition }) {
+export default function ArticleDisplay({ article, className, removeFromReadLaterSection, addToReadLaterSection }) {
     const { APIUrl, contextUser } = useContext(AuthorizationContext)
     const [upvotedFilled, setUpvotedFilled] = useState(article.upvoted ? true : false);
     const [downvotedFilled, setDownvotedFilled] = useState(article.downvoted ? true : false);
@@ -19,7 +19,7 @@ export default function ArticleDisplay({ article, saveScrollPosition }) {
     const navigate = useNavigate();
 
     const addToReadLater = async () => {//treba da se prikaze u read later
-        var route = `NewsArticle/AddToReadLater/${contextUser.username}/${article.id}`;
+        var route = `NewsArticle/AddToReadLater/${"username1"}/${article.id}`;
         await axios.post(APIUrl + route, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
@@ -27,13 +27,16 @@ export default function ArticleDisplay({ article, saveScrollPosition }) {
         }).then(result => {
             console.log(result.data);
             setBookmarkedFilled(!bookmarkedFilled);
+
+            console.log(addToReadLaterSection ? "postoji funkcija" : "ne postoji" + article);
+            addToReadLaterSection(article);
         }).catch(error => {
             console.log(error);
         });
     }
 
     const removeFromReadLater = async () => {
-        var route = `NewsArticle/RemoveArticleFromReadLater/${contextUser.username}/${article.id}`;
+        var route = `NewsArticle/RemoveArticleFromReadLater/${"username1"}/${article.id}`;
         await axios.delete(APIUrl + route, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
@@ -41,6 +44,9 @@ export default function ArticleDisplay({ article, saveScrollPosition }) {
         }).then(result => {
             console.log(result.data);
             setBookmarkedFilled(!bookmarkedFilled);
+            if (removeFromReadLaterSection) {
+                removeFromReadLaterSection(article.id);
+            }
         }).catch(error => {
             console.log(error);
         });
@@ -142,8 +148,8 @@ export default function ArticleDisplay({ article, saveScrollPosition }) {
     }
 
     return (
-        <div className="grid w-[330px] p-5 cursor-default bg-[#ECE9E4] shadow-xl rounded-md">
-            <div className=" flex w-fit h-fit mb-2 text-bold rounded-lg hover:bg-white cursor-pointer" onClick={() => handleOnClick()}>
+        <div className={`grid w-[330px] p-5 cursor-default bg-[#ECE9E4] shadow-xl rounded-md ${className}`}>
+            <div className="flex w-fit h-fit mb-2 text-bold rounded-lg hover:bg-white cursor-pointer" onClick={() => handleOnClick()}>
                 <img className="object-contain h-30" src={vienna}></img>
             </div>
             <div className="flex mb-2 md:text-lg">

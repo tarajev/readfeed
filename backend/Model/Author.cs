@@ -3,7 +3,7 @@ using Redis.OM.Modeling;
 namespace backend.Model;
 
 [Document(StorageType = StorageType.Json, Prefixes = new[] { "Author" })]
-public class Author
+public class Author : UserBase
 {
     [RedisIdField]
     [Indexed]
@@ -11,9 +11,6 @@ public class Author
 
     [Indexed]
     public required string FullName { get; set; }
-
-    [Indexed]
-    public required string Email { get; set; }
 
     public string? Bio { get; set; }
 

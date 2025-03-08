@@ -7,9 +7,11 @@ using System.Text.RegularExpressions;
 
 using System.Text.Json;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Authorization;
 namespace backend.Controllers;
 
 [ApiController]
+[Authorize(Roles = "User, Author")]
 [Route("NewsArticle")]
 public partial class NewsArticleController : ControllerBase //ne znam zasto je partial kad je samo ova klasa???
 {
@@ -24,7 +26,7 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
     }
 
     #region CRUD
-
+    [Authorize(Roles = "Author")]
     [HttpPost("AddNewsArticle")]
     public async Task<IActionResult> AddNewsArticle([FromBody] NewsArticle article)
     {
@@ -49,6 +51,7 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         return Ok(article);
     }
 
+    [Authorize(Roles = "Author")]
     [HttpPut("UpdateContent/{id}")]
     public async Task<IActionResult> UpdateNewsArticle([FromRoute] string id, [FromBody] NewsArticle newsArticle) //update za title i content
     {
@@ -69,6 +72,7 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         return Ok("Article was successfully updated.");
     }
 
+    [Authorize(Roles = "Author")]
     [HttpDelete("DeleteNewsArticle/{id}")]
     public IActionResult DeleteNewsArticle([FromRoute] string id)
     {
@@ -339,7 +343,7 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
     }
 
     [HttpGet("GetReadLaterArticles/{userId}")]
-    public async Task<List<NewsArticle?>> GetReadLaterArticles(string userId)
+    public async Task<IActionResult> GetReadLaterArticles(string userId)
     {
         var setKey = $"user:{userId}:readlater";
         var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -347,12 +351,40 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         //prvo brišemo vesti koje su istekle i ako ne postoje ne vraća grešku
         await _provider.Connection.ExecuteAsync("ZREMRANGEBYSCORE", setKey, "-inf", currentTimestamp);
 
-        var result = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", setKey, currentTimestamp, "+inf");
+        var result = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", setKey, currentTimestamp, "+inf"); //vraća prazan niz ako ne postoji sorted set 
         var ids = result.ToArray().Select(x => x.ToString()).ToList();
 
         var articles = await _news.FindByIdsAsync(ids);
+        var list = articles.Select(x => x.Value);
 
-        return [.. articles.Select(x => x.Value)]; //vraća prazan niz ako ne postoji sorted set 
+        var upvotedSetKey = $"user:{userId}:upvotes";
+        var downvotedSetKey = $"user:{userId}:downvotes";
+
+        //proveriti jel moze bolje nekako  
+        var upvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", upvotedSetKey, currentTimestamp, "+inf");
+        var downvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", downvotedSetKey, currentTimestamp, "+inf");
+       
+        var upvotesIds = upvotes.ToArray().Select(x => x.ToString()).ToList();
+        var downvotesIds = downvotes.ToArray().Select(x => x.ToString()).ToList();
+
+        var readLaterArticles = list.Select(article => new NewsArticle
+        {
+            Id = article.Id,
+            Title = article.Title,
+            Content = article.Content,
+            Score = article.Score,
+            Category = article.Category,
+            Tags = article.Tags,
+            Photos = article.Photos,
+            Link = article.Link,
+            Author = article.Author,
+            CreatedAt = article.CreatedAt,
+            Upvoted = upvotesIds.Contains(article.Id),
+            Downvoted = downvotesIds.Contains(article.Id),
+            Bookmarked = true
+        }).ToList();
+
+        return Ok(readLaterArticles);
     }
 
     [HttpDelete("RemoveArticleFromReadLater/{userId}/{articleId}")]
