@@ -19,16 +19,14 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
     const navigate = useNavigate();
 
     const addToReadLater = async () => {//treba da se prikaze u read later
-        var route = `NewsArticle/AddToReadLater/${"username1"}/${article.id}`;
-        await axios.post(APIUrl + route, {
+        var route = `NewsArticle/AddToReadLater/${contextUser.username}/${article.id}`;
+        await axios.post(APIUrl + route, {},{
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
         }).then(result => {
             console.log(result.data);
             setBookmarkedFilled(!bookmarkedFilled);
-
-            console.log(addToReadLaterSection ? "postoji funkcija" : "ne postoji" + article);
             addToReadLaterSection(article);
         }).catch(error => {
             console.log(error);
@@ -36,7 +34,7 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
     }
 
     const removeFromReadLater = async () => {
-        var route = `NewsArticle/RemoveArticleFromReadLater/${"username1"}/${article.id}`;
+        var route = `NewsArticle/RemoveArticleFromReadLater/${contextUser.username}/${article.id}`;
         await axios.delete(APIUrl + route, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
@@ -53,8 +51,8 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
     }
 
     const upvoteNewsArticle = async () => {
-        var route = `NewsArticle/UpvoteNewsArticle/${"username1"}/${article.id}`; //username1 privremeno => ${contextUser.username}
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/UpvoteNewsArticle/${contextUser.username}/${article.id}`; //username1 privremeno => ${contextUser.username}
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
@@ -68,8 +66,8 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
     }
 
     const downvoteNewsArticle = async () => {
-        var route = `NewsArticle/DownvoteNewsArticle/${"username1"}/${article.id}`;
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/DownvoteNewsArticle/${contextUser.username}/${article.id}`;
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
@@ -83,8 +81,8 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
     }
 
     const removeDownvote = async () => {
-        var route = `NewsArticle/RemoveDownvoteNewsArticle/${"username1"}/${article.id}`;
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/RemoveDownvoteNewsArticle/${contextUser.username}/${article.id}`;
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
@@ -98,8 +96,8 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
     }
 
     const removeUpvote = async () => {
-        var route = `NewsArticle/RemoveUpvoteNewsArticle/${"username1"}/${article.id}`;
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/RemoveUpvoteNewsArticle/${contextUser.username}/${article.id}`;
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }

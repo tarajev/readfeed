@@ -3,13 +3,16 @@ using backend.Extensions;
 using backend.Model;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Redis.OM;
 using Redis.OM.Searching;
 
+namespace backend.Controllers;
 
 [Route("Auth")]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly IConfiguration _configuration;
@@ -19,19 +22,28 @@ public class AuthController : ControllerBase
     private readonly AuthService _authService;
     
 
-    public AuthController(IConfiguration c, AuthService authService, RedisConnectionProvider provider)
+    public AuthController(IConfiguration c, AuthService authService)
     {
         _configuration = c;
         _authService = authService;
-        _provider = provider;
-        _authors = (RedisCollection<Author>)provider.RedisCollection<Author>();
-        _users = (RedisCollection<User>)provider.RedisCollection<User>();
     }
 
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
+
+        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password) || string.IsNullOrEmpty(request.Role))
+        return BadRequest("Missing data");
+
+        if (request == null){
+            return BadRequest("Request is null");
+        }
+
         var user = await _authService.GetUserByEmail(request.Email, request.Role);
+
+        if (user == null)
+        {Console.WriteLine("user je null");}
+        
 
         if (user != null && PasswordHasher.VerifyPassword(request.Password, user.Password))
         {
@@ -61,5 +73,5 @@ public class LoginRequest //ovo premestiti negde?
 {
     public required string Email { get; set; }
     public required string Password { get; set; }
-    public required string Role { get; set; }
+    public required string Role { get; set; } //dva razlicita login-a za autore i korisnike
 }

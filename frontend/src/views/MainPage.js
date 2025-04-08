@@ -16,7 +16,7 @@ export default function DrawMainPage() {
   const [readLater, setReadLater] = useState([]);
 
   const getReadLaterNews = async () => {
-    var route = `NewsArticle/GetReadLaterArticles/${"username1"}`;
+    var route = `NewsArticle/GetReadLaterArticles/${contextUser.username}`;
     await axios.get(APIUrl + route, {
       headers: {
         Authorization: `Bearer ${contextUser.jwtToken}`,

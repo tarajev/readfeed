@@ -26,7 +26,7 @@ export default function ArticlePage() {
 
     const addToReadLater = async () => {//treba da se prikaze u read later
         var route = `NewsArticle/AddToReadLater/${contextUser.username}/${article.id}`;
-        await axios.post(APIUrl + route, {
+        await axios.post(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
@@ -53,8 +53,8 @@ export default function ArticlePage() {
     }
 
     const upvoteNewsArticle = async () => {
-        var route = `NewsArticle/UpvoteNewsArticle/${"username1"}/${article.id}`;
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/UpvoteNewsArticle/${contextUser.username}/${article.id}`;
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
@@ -68,8 +68,8 @@ export default function ArticlePage() {
     }
 
     const downvoteNewsArticle = async () => {
-        var route = `NewsArticle/DownvoteNewsArticle/${"username1"}/${article.id}`;
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/DownvoteNewsArticle/${contextUser.username}/${article.id}`;
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
@@ -83,8 +83,8 @@ export default function ArticlePage() {
     }
 
     const removeDownvote = async () => {
-        var route = `NewsArticle/RemoveDownvoteNewsArticle/${"username1"}/${article.id}`;
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/RemoveDownvoteNewsArticle/${contextUser.username}/${article.id}`;
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }
@@ -98,8 +98,8 @@ export default function ArticlePage() {
     }
 
     const removeUpvote = async () => {
-        var route = `NewsArticle/RemoveUpvoteNewsArticle/${"username1"}/${article.id}`;
-        await axios.put(APIUrl + route, {
+        var route = `NewsArticle/RemoveUpvoteNewsArticle/${contextUser.username}/${article.id}`;
+        await axios.put(APIUrl + route, {}, {
             headers: {
                 Authorization: `Bearer ${contextUser.jwtToken}`,
             }

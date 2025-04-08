@@ -72,15 +72,22 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
   const handleRegisterSubmit = async (event) => {
     event.preventDefault();
 
-    const emailResult = await axios.get(APIUrl + `Auth/CheckEmail/${email}`);
-    setInvalidEmail(emailResult.data === 0 ? false : true);
+    try {
+      await axios.get(APIUrl + `Auth/CheckEmail/${email}`);
+    } catch (err) {
+      setInvalidEmail(true);
+    }    
 
-    const usernameResult = await axios.get(APIUrl + `User/GetUserByUsername/${userName}`);
-    setInvalidUsername(usernameResult.data ? true : false);
+    try {
+      await axios.get(APIUrl + `User/GetUserByUsername/${userName}`);
+      setInvalidUsername(true); 
+    } catch (err) {
+      setInvalidUsername(false);
+    }    
 
-    if (!emailResult.data && !usernameResult.data) {
+    if (!invalidEmail && !invalidUsername) {
       setIsLoading(true);
-      await axios.post(APIUrl + "Auth/Register", {
+      await axios.post(APIUrl + "User/AddUser", {
         userName: userName,
         email: email,
         password: password
@@ -229,7 +236,8 @@ export function DrawLogin({ onRegisterClick, handleLoginClick }) {
     setIsLoading(true);
     await axios.post(APIUrl + "Auth/Login", {
       email: email,
-      password: password
+      password: password,
+      role: "User" //privremeno osim ako ne razdvojimo ui za autore/korisnike 
     })
       .then(request => {
         let data = { ...request.data };
@@ -241,13 +249,15 @@ export function DrawLogin({ onRegisterClick, handleLoginClick }) {
 
         delete user.password;
 
+        console.log(user);
+
         contextSetUser(user);
 
         var now = new Date();
         now.setHours(now.getHours() + 6);
 
-        localStorage.setItem('NeowatchUser', JSON.stringify(user));
-        localStorage.setItem('NeoWatchExpiryDate', now);
+        localStorage.setItem('ReadfeedUser', JSON.stringify(user));
+        localStorage.setItem('ReadfeedExpiryDate', now);
 
         handleLoginClick();
       })

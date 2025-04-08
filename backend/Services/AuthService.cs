@@ -52,13 +52,13 @@ public class AuthService
     {
         if (role == "User")
         {
-            var user = await _users.Where(x => x.Email == email).FirstOrDefaultAsync();
-            return user;
+            var user = await _users.Where(user => user.Email == email).ToListAsync();
+            return user.FirstOrDefault();
         }
         else
         {
-            var author = await _authors.Where(x => x.Email == email).FirstOrDefaultAsync();
-            return author;
+            var author = await _authors.Where(author => author.Email == email).ToListAsync();
+            return author.FirstOrDefault();
         }
     }
     public async Task<bool> CheckEmail(string role, string email)

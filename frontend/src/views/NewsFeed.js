@@ -26,13 +26,16 @@ export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSect
 
 
     const getMostPopularNews = async (skip, take) => {
-        var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${"username1"}`;
+        var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${contextUser.username}`;
         await axios.get(APIUrl + route, {
             params: {
                 followedCategories: tags
             },
             paramsSerializer: {
                 indexes: null
+            },
+            headers: {
+                Authorization: `Bearer ${contextUser.jwtToken}`
             }
         })
             .then(result => {
@@ -50,13 +53,16 @@ export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSect
     }
 
     const getLatestNews = async (skip, take) => {
-        var route = `NewsArticle/GetMostRecentNewsArticles/${skip}/${take}/${"username1"}`;
+        var route = `NewsArticle/GetMostRecentNewsArticles/${skip}/${take}/${contextUser.username}`;
         await axios.get(APIUrl + route, {
             params: {
                 followedCategories: tags
             },
             paramsSerializer: {
                 indexes: null
+            },
+            headers: {
+                Authorization: `Bearer ${contextUser.jwtToken}`
             }
         })
             .then(result => {
