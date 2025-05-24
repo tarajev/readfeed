@@ -110,7 +110,7 @@ export function FileUpload({ className, width, height, text, buttonText, setPict
       console.log(file);
     }
     if (file.size >= limitInMegabytes * 1000000) {
-      setErrorMessage(`Fajl je prevelik! Limit je ${limitInMegabytes}MB.`);
+      setErrorMessage(`File is too big! Limit is ${limitInMegabytes}MB.`);
       console.error(file);
     }
   };
@@ -123,7 +123,7 @@ export function FileUpload({ className, width, height, text, buttonText, setPict
       </div>
       <div className={className}>
         <MUIButton
-          style={{ height: height, width: width, backgroundColor: "#2e1065" }}
+          style={{ height: height, width: width, backgroundColor: "#a9222f", fontWeight: "600" }}
           component="label"
           role={undefined}
           variant="contained"
@@ -163,7 +163,7 @@ export function FormButton({ text, disabled, onClick, loading, className }) {
         onClick={onClick}
         className={`w-full px-4 py-2 text-sm text-white text-center bg-accent rounded-md hover:bg-[#a9222f] ${className}`}
       >
-        <div className='flex items-center justify-center'>
+        <div className='flex items-center justify-center text-md font-medium'>
           {loading && <CircularProgress size={15} className='mr-2' sx={{ 'color': 'white' }} />}{text}
         </div>
       </button>
@@ -266,7 +266,7 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
   return (
     <label className={`block mt-3 ${inline ? "flex flex-nowrap items-center" : ""}`}>
       <div className={`${inline ? "mr-2" : ""} ${labelClass}`}>
-        <span className={`text-md text-gray-900 ${textClass}`}>
+        <span className={`text-md font-medium text-gray-900 ${textClass}`}>
           {text}
         </span>
         <span className="text-md text-red-600">
@@ -285,7 +285,7 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
           onBlur={onBlur}
           onKeyDown={onKeyDown}
           pattern={pattern}
-          className={`block w-full mt-1 rounded-md text-gray-900 bg-secondary border border-gray-800 p-2 focus:ring ${alertCond ? "ring ring-accent" : "ring-secondary"} ${className}`}
+          className={`block w-full mt-1 rounded-md text-gray-900 font-medium bg-secondary border border-gray-800 p-2 focus:ring ${alertCond ? "ring ring-accent" : "ring-secondary"} ${className}`}
         />
       ) : (
         <input
@@ -299,7 +299,7 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
           onKeyDown={onKeyDown}
           disabled={disabled}
           pattern={pattern}
-          className={`block w-full mt-1 rounded-md text-gray-900 bg-secondary border border-gray-800 p-2 ${alertCond ? "ring ring-accent" : ""} ${className}`}
+          className={`block w-full mt-1 rounded-md text-gray-900 font-medium bg-secondary border border-gray-800 p-2 ${alertCond ? "ring ring-accent" : ""} ${className}`}
         />
       )}
       {alertCond && <p className="text-accent text-xs mt-1">{alertText}</p>}
