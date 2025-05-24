@@ -6,6 +6,7 @@ import MainPage from "./views/MainPage"
 import NotFound from './views/NotFound';
 import AuthorPage from './views/AuthorPage';
 import ArticlePage from "./views/ArticlePage";
+import CreateArticle from "./views/CreateArticle";
 
 function App() {
   const [contextUser, contextSetUser] = useState({
@@ -34,6 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/articlepage/:title" element={<ArticlePage/>}></Route>
+            <Route path="/createarticle" element={<CreateArticle/>}></Route> {/* Da se stavi pod Auth rutu */}
             <Route path="/author/:id" element={<AuthorPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

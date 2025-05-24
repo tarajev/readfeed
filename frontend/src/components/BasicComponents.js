@@ -119,7 +119,7 @@ export function FileUpload({ className, width, height, text, buttonText, setPict
     <>
       <div className='hidden sm:flex items-baseline'>
         <p className='sm:mt-4 mr-1'>{text}</p>
-        <p className='truncate text-white'>{fileName ? fileName : ""}</p>
+        <p className='truncate mx-auto'>{fileName ? fileName : ""}</p>
       </div>
       <div className={className}>
         <MUIButton
@@ -135,7 +135,7 @@ export function FileUpload({ className, width, height, text, buttonText, setPict
         </MUIButton>
       </div>
       <div className="flex justify-center mt-2 sm:hidden">
-        <p className='truncate text-white'>{fileName ? `Slika: ${fileName}` : ""}</p>
+        <p className='truncate mx-auto'>{fileName ? `Slika: ${fileName}` : ""}</p>
       </div>
       {errorMessage.length > 0 && <p className='text-red-600'>{errorMessage}</p>}
     </>
@@ -262,7 +262,7 @@ export function Input({ placeholder, value, preventTab, date, minDate, maxDate, 
   );
 }
 
-export function FormInput({ text, textClass, labelClass, date, minDate, maxDate, required, multiline, rows, inline, value, type, onChange, onBlur, pattern, className, alertCond, alertText, disabled }) {
+export function FormInput({ text, textClass, labelClass, date, minDate, maxDate, required, multiline, rows, inline, value, type, onChange, onBlur, onKeyDown, pattern, className, alertCond, alertText, disabled }) {
   return (
     <label className={`block mt-3 ${inline ? "flex flex-nowrap items-center" : ""}`}>
       <div className={`${inline ? "mr-2" : ""} ${labelClass}`}>
@@ -283,8 +283,9 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
           spellCheck={false}
           onChange={onChange}
           onBlur={onBlur}
+          onKeyDown={onKeyDown}
           pattern={pattern}
-          className={`block w-full mt-1 rounded-md text-gray-200 bg-gray-700 border border-gray-800 p-2 focus:ring outline-none ${alertCond ? "ring ring-accent" : "ring-secondary"} ${className}`}
+          className={`block w-full mt-1 rounded-md text-gray-900 bg-secondary border border-gray-800 p-2 focus:ring ${alertCond ? "ring ring-accent" : "ring-secondary"} ${className}`}
         />
       ) : (
         <input
@@ -294,10 +295,11 @@ export function FormInput({ text, textClass, labelClass, date, minDate, maxDate,
           max={maxDate}
           spellCheck={false}
           onChange={onChange}
-          disabled={disabled}
           onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          disabled={disabled}
           pattern={pattern}
-          className={`block w-full mt-1 rounded-md text-gray-900 bg-secondary border border-gray-800 p-2  outline-none ${alertCond ? "ring ring-accent" : ""} ${className}`}
+          className={`block w-full mt-1 rounded-md text-gray-900 bg-secondary border border-gray-800 p-2 ${alertCond ? "ring ring-accent" : ""} ${className}`}
         />
       )}
       {alertCond && <p className="text-accent text-xs mt-1">{alertText}</p>}
