@@ -11,7 +11,6 @@ import NewsFeed from './NewsFeed';
 
 export default function DrawMainPage() {
   const { APIUrl, contextUser } = useContext(AuthorizationContext)
-  const [search, setSearch] = useState(''); // Za pretragu serija
   const [overlayActive, setOverlayActive] = useState(false); // Potrebno za prevenciju background-tabovanja kada je forma aktivna
   const [readLater, setReadLater] = useState([]);
 
@@ -45,13 +44,7 @@ export default function DrawMainPage() {
     console.log("Uklonjeno iz Read Later:", id);
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      setSearch('');
-    }
-  };
 
-  // TODO - Da se popuni stranica
   return (
 
     <Page overlayActive={overlayActive} loading={true} overlayHandler={setOverlayActive} slidingPanel={<SlidingPanel children={readLater} removeFromSlidingPanel={removeFromReadLaterSection} addToSlidingPanel={addToReadLaterSection} />}>

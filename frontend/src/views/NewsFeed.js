@@ -4,15 +4,17 @@ import AuthorizationContext from '../context/AuthorizationContext'
 import Tag from '../components/Tag'
 import ArticleDisplay from '../components/ArticleDisplay'
 import arrowDownIconFilled from "../resources/img/arrow-down-filled.png"
+import DrawAddInterests from './AddInterests';
 
-export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSection}) {
+export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSection }) {
     const { APIUrl, contextUser } = useContext(AuthorizationContext)
     const [criteria, setCriteria] = useState("popular")
-    const [tags, setTags] = useState(["World Politics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
+    const [tags, setTags] = useState(["World Politics", "Economics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
     const [latestNews, setLatestNews] = useState([]);
     const [popularNews, setPopularNews] = useState([]);
     const [popularIndex, setPopularIndex] = useState(0);
     const [latestIndex, setLatestIndex] = useState(0);
+    const [drawAddInterests, setDrawInterests] = useState(false);
 
     const testNews = [
         { title: "New AI technology is changing the way developers work", category: "Technology", createdAt: "2025-02-11", score: 120 },
@@ -26,6 +28,7 @@ export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSect
 
 
     const getMostPopularNews = async (skip, take) => {
+        console.log("test");
         var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${contextUser.username}`;
         await axios.get(APIUrl + route, {
             params: {
@@ -45,6 +48,7 @@ export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSect
                     );
                     return [...prevNews, ...newArticles];
                 });
+                //setPopularNews(result.data);
             })
             .catch(error => {
                 console.log(error);
@@ -73,6 +77,7 @@ export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSect
                     return [...prevNews, ...newArticles];
                 });
                 console.log(result.data)
+                //setLatestNews(result.data);
             })
             .catch(error => {
                 console.log(error);
@@ -89,6 +94,7 @@ export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSect
     }, [criteria, tags, popularIndex])
 
     return (<>
+        {drawAddInterests && <DrawAddInterests onClose = {()=>setDrawInterests(false)} existingTags={tags} onChange={setTags}></DrawAddInterests> }
         {sessionStorage.setItem('scrollPosition', window.scrollY)}
         <div className='grid h-full w-full'>
             <div className='flex justify-between' >
@@ -96,7 +102,7 @@ export default function NewsFeed({addToReadLaterSection, removeFromReadLaterSect
                     {tags.map((tag, index) => (
                         <Tag key={index} text={tag} onClick={() => setTags(tags.filter(t => t !== tag))}></Tag>
                     ))}
-                    <div className=' p-1 px-2 rounded-lg font-semibold ml-5 mt-0 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>
+                    <div onClick={() => setDrawInterests(true)} className=' p-1 px-2 rounded-lg font-semibold ml-5 mt-0 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>
                 </div>
                 <div className='justify-self-end ml-[120px] mr-4 '>
                     <select

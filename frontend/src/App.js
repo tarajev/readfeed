@@ -15,6 +15,7 @@ function App() {
     email: "",
     picture: "",
     bio: "",
+    subscribredCategories: [],
   });
 
   const APIUrl = "http://localhost:5000/";
