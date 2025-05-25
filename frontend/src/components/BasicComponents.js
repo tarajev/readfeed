@@ -264,7 +264,7 @@ export function Input({ placeholder, value, preventTab, date, minDate, maxDate, 
 
 export function FormInput({ text, textClass, labelClass, date, minDate, maxDate, required, multiline, rows, inline, value, type, onChange, onBlur, onKeyDown, pattern, className, alertCond, alertText, disabled }) {
   return (
-    <label className={`block mt-3 ${inline ? "flex flex-nowrap items-center" : ""}`}>
+    <label className={`block ${inline ? "flex flex-nowrap items-center" : ""}`}>
       <div className={`${inline ? "mr-2" : ""} ${labelClass}`}>
         <span className={`text-md font-medium text-gray-900 ${textClass}`}>
           {text}
