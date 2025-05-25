@@ -1,0 +1,5 @@
+wwwroot/UploadedFiles/*.png
+wwwroot/UploadedFiles/*.jpg
+wwwroot/UploadedFiles/*.jpeg
+wwwroot/UploadedFiles/*.svg
+wwwroot/UploadedFiles/*.jp2

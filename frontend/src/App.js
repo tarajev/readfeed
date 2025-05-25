@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthorizationContext from './context/AuthorizationContext';
 import './App.css';
@@ -35,7 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/articlepage/:title" element={<ArticlePage/>}></Route>
-            <Route path="/createarticle" element={<CreateArticle/>}></Route> {/* Da se stavi pod Auth rutu */}
+            <Route path="/createarticle" element={<CreateArticle/>}></Route> {/* TODO: Da se stavi pod Auth rutu */}
             <Route path="/author/:id" element={<AuthorPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -36,7 +36,7 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         var message = JsonSerializer.Serialize(article);
         await subscriber.PublishAsync(RedisChannel.Literal("news_channel"), message);
 
-        return Ok("New Article was successfully added");
+        return Ok(article);
     }
 
     [HttpGet("GetNewsArticleById/{id}")]
@@ -82,6 +82,43 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         else
             return BadRequest("Došlo je do greške");
     }
+
+    [HttpPut("UploadArticleThumbnail/{id}")]
+    public async Task<IActionResult> UploadArticleThumbnail(IFormFile file, string id)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest("No file uploaded");
+
+        if (file.Length > 5000000)
+            return BadRequest("File size too large!");
+
+        var article = await _news.FindByIdAsync(id);
+        if (article == null)
+            return NotFound("Article doesn't exist.");
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "UploadedFiles", "Articles");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
+
+        var fileExtension = Path.GetExtension(file.FileName);
+        var fileName = article.Title + fileExtension;
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        if (System.IO.File.Exists(filePath))
+            System.IO.File.Delete(filePath);
+
+        using (var stream = new FileStream(filePath, FileMode.Create)) {
+            await file.CopyToAsync(stream);
+        }
+
+        var fileUrl = $"/UploadedFiles/Articles/{fileName}";
+        article.Photos = [fileUrl];
+        
+        await _news.UpdateAsync(article);
+
+        return Ok(new { fileUrl });
+    }
+    
     #endregion
 
     #region Search
@@ -363,7 +400,7 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         //proveriti jel moze bolje nekako  
         var upvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", upvotedSetKey, currentTimestamp, "+inf");
         var downvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", downvotedSetKey, currentTimestamp, "+inf");
-       
+
         var upvotesIds = upvotes.ToArray().Select(x => x.ToString()).ToList();
         var downvotesIds = downvotes.ToArray().Select(x => x.ToString()).ToList();
 

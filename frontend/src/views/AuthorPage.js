@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import { Page, Link } from '../components/BasicComponents'
+import { Page } from '../components/BasicComponents'
 import AuthorizationContext from '../context/AuthorizationContext'
 import axios from 'axios'
 
@@ -30,7 +30,7 @@ export default function AuthorPage() {
   return (
     <Page loading={true} timeout={1000} overlayActive={overlayActive} overlayHandler={setOverlayActive}>
       <div className='mt-4 mx-2 font-playfair'>
-        <div className='grid p-2 grid-cols-12 gap-4 h-fit bg-gradient-to-r from-orange-50 to-gray-100 rounded-lg'>
+        <div className='grid p-2 grid-cols-12 gap-4 h-fit bg-gradient-to-r from-gray-200 to-[#F4F1EC] rounded-lg'>
           <div className='col-span-3 md:col-span-2 overflow-x-clip content-center '>
             <img className={`max-w-36 max-h-36 justify-self-center border border-black rounded-lg filter-gray w-28"`} src={iconUser} />
           </div>
@@ -47,7 +47,7 @@ export default function AuthorPage() {
         <p className='mt-6 sm:text-2xl font-semibold text-[#07090D] justify-self-center'>
           Articles:
         </p>
-        <hr className='bg-gray-600 pt-0.5 mb-4' />
+        <hr className='bg-gray-600 pt-0.5 mb-8' />
 
         <div className='grid grid-cols-3 justify-items-center gap-4'>
           {testNews.map((article, index) => (

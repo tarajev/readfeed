@@ -40,14 +40,57 @@ export default function ArticlePage() {
     }
   };
 
-  const submitArticle = async () => {
+  const checkFields = () => {
     if (!description) setErrorMessage("Description not set!");
     if (tags.length === 0) setErrorMessage("Tags not set!");
     if (!category) setErrorMessage("Category not set!");
     if (!picture) setErrorMessage("Picture not set!");
     if (!title) setErrorMessage("Title not set!");
 
-    if (!(title && picture && category && tags.length !== 0 && description)) return;
+    if (!(title && picture && category && tags.length !== 0 && description)) return false;
+
+    setErrorMessage("");
+    return true;
+  }
+
+  const previewArticle = async () => {
+    if (!checkFields()) return;
+
+    const dummyArticle = {
+      id: 'preview-' + Date.now(),
+      title: title,
+      content: description,
+      category: category,
+      tags: tags.join('|'),
+      photos: picture ? [URL.createObjectURL(picture)] : [],
+      link: link,
+      author: contextUser?.username // TODO: Ime i prezime umesto ovoga
+    };
+
+    sessionStorage.setItem('previewArticle', JSON.stringify(dummyArticle));
+    const newTab = window.open(`/articlepage/preview-${Date.now()}`, '_blank');
+    newTab.focus();
+  };
+
+  const uploadArticleThumbnail = async (articleId) => {
+    if (!picture) return;
+
+    const formData = new FormData();
+    formData.append('file', picture);
+
+    axios.put(`${APIUrl}NewsArticle/UploadArticleThumbnail/${articleId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${contextUser.jwtToken}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .catch(error => {
+      console.log('Thumbnail upload error:', error);
+    });
+  }
+
+  const submitArticle = async () => {
+    if (!checkFields()) return;
     setLoading(true);
 
     const article = {
@@ -55,13 +98,8 @@ export default function ArticlePage() {
       content: description,
       category: category,
       tags: tags.join('|'),
-      photos: picture ? [URL.createObjectURL(picture)] : [], // slika nzm kako se cuva
       link: link,
-      author: contextUser?.username, // treba ime i prezime umesto ovoga
-      score: 0,
-      upvoted: false,
-      downvoted: false,
-      bookmarked: false
+      author: contextUser?.username // TODO: treba ime i prezime umesto ovoga
     }
 
     let result = axios.post(`${APIUrl}NewsArticle/AddNewsArticle`, article, {
@@ -69,15 +107,13 @@ export default function ArticlePage() {
         Authorization: `Bearer ${contextUser.jwtToken}`,
         'Content-Type': 'application/json'
       }
-    }).then(result => {
-      result = true;
-      console.log(result.data);
+    }).then(response => {
+      uploadArticleThumbnail(response.data.id);
     }).catch(error => {
-      result = false;
       console.log(error);
     }).finally(() => {
       setLoading(false);
-      if (result) window.location.reload();
+      // if (result) window.location.reload();
     });
   }
 
@@ -120,7 +156,7 @@ export default function ArticlePage() {
               <ReactQuill value={description} onChange={setDescription} theme="snow" style={{ height: '200px' }}>
                 <div
                   className="ql-editor"
-                  style={{ fontSize: '17px', padding: 0, fontFamily: 'Georgia, serif' }}
+                  style={{ fontSize: '17px', borderRadius: "0px 0px 10px 10px", background: "#ece9e4", padding: 0, fontFamily: 'Georgia, serif' }}
                 />
               </ReactQuill>
             </div>
@@ -136,9 +172,14 @@ export default function ArticlePage() {
             <span className="text-red-600">*</span>
             Required fields.
           </div>
-          <div className="flex">
-            <p className="text-red-600 mt-7 mr-2">{errorMessage}</p>
-            <FormButton text="Submit Article" className="!w-52" onClick={submitArticle} loading={loading} />
+          <div className="flex flex-col items-center">
+            <div className="ml-auto">
+              <FormButton text="Preview Article" className="!w-52" onClick={previewArticle} />
+            </div>
+            <div className="-mt-4 ml-auto">
+              <FormButton text="Submit Article" className="!w-52" onClick={submitArticle} loading={loading} />
+            </div>
+            <p className="text-red-600 mt-1">{errorMessage}</p>
           </div>
         </div>
       </div>
