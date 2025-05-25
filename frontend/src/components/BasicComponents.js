@@ -161,7 +161,7 @@ export function FormButton({ text, disabled, onClick, loading, className }) {
         type="submit"
         disabled={disabled}
         onClick={onClick}
-        className={`w-full px-4 py-2 text-sm text-white text-center bg-accent rounded-md hover:bg-[#a9222f] ${className}`}
+        className={`w-full px-4 py-2 text-sm text-white text-center bg-accent rounded-md ${!disabled ? "hover:bg-[#a9222f]" : "cursor-not-allowed"} ${className}`}
       >
         <div className='flex items-center justify-center text-md font-medium'>
           {loading && <CircularProgress size={15} className='mr-2' sx={{ 'color': 'white' }} />}{text}

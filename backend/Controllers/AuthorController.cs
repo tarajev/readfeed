@@ -4,6 +4,7 @@ using backend.Model;
 using Redis.OM;
 using Microsoft.AspNetCore.Authorization;
 using backend.Extensions;
+using backend.Services;
 
 namespace backend.Controllers;
 
@@ -13,15 +14,24 @@ public class AuthorController : ControllerBase
 {
     private readonly RedisCollection<Author> _authors;
     private readonly RedisConnectionProvider _provider;
-    public AuthorController(RedisConnectionProvider provider)
+    private readonly AuthService _authService;
+
+    public AuthorController(RedisConnectionProvider provider, AuthService authService)
     {
         _provider = provider;
         _authors = (RedisCollection<Author>)provider.RedisCollection<Author>();
+        _authService = authService;
     }
 
+    [AllowAnonymous]
     [HttpPost("AddAuthor")]
     public async Task<IActionResult> AddAuthor([FromBody] Author author)
     {
+        var emailInUse = await _authService.CheckEmail(author.Email);
+
+        if (emailInUse == true)
+            return BadRequest($"Email: '{author.Email}' is already in use.");
+            
         author.Password = PasswordHasher.HashPassword(author.Password);
         await _authors.InsertAsync(author);
         return Ok("New author was successfully added");

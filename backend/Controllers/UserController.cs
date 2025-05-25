@@ -15,7 +15,6 @@ public class UserController : ControllerBase
 {
     private readonly RedisCollection<User> _users;
     private readonly RedisConnectionProvider _provider;
-
     private readonly AuthService _authService;
 
     public UserController(RedisConnectionProvider provider, AuthService authService)
@@ -34,7 +33,7 @@ public class UserController : ControllerBase
         if (existingUser != null)
             return BadRequest($"User: '{user.Username}' already exists.");
 
-        var emailInUse = await _authService.CheckEmail(user.Email, "User");
+        var emailInUse = await _authService.CheckEmail(user.Email);
         
         if (emailInUse == true)
              return BadRequest($"Email: '{user.Email}' is already in use.");
@@ -52,7 +51,7 @@ public class UserController : ControllerBase
         var user = await _users.FindByIdAsync($"User:{username}");
 
         if (user == null)
-            return BadRequest($"User: '{username}'  not found.");
+            return NotFound($"User: '{username}'  not found.");
 
         return Ok(user);
     }

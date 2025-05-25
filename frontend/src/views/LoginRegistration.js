@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link, Exit, FormInput, Password, FormButton, Checkbox } from '../components/BasicComponents';
-import logo from '../resources/img/neowatchlogo.png';
+import userIcon from "../resources/img/icon-user2.png"
+import authorIcon from "../resources/img/icon-author.png"
 import '../assets/colors.css';
 import '../assets/animations.css';
 import '../assets/App.css'
 import axios from 'axios';
 import AuthorizationContext from '../context/AuthorizationContext';
+import IconButtonCard from '../components/IconButtonCard';
 
 export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginClick }) {
   const { APIUrl } = useContext(AuthorizationContext);
@@ -16,6 +18,9 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const [fullName, setFullName] = useState('');
+  const [newspaper, setNewspaper] = useState('');
+
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [emailTouched, setEmailTouched] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,6 +28,7 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [invalidEmail, setInvalidEmail] = useState(false);
   const [invalidUsername, setInvalidUsername] = useState(false);
+  const [userTypeAuthor, setUserTypeAuthor] = useState(false);
 
   const handleUsernameChange = (e) => {
     setInvalidUsername(false);
@@ -60,32 +66,46 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
   };
 
   const disableSubmit = () => {
-    return !userName ||
-      !email ||
-      !password ||
-      !confirmPassword ||
-      !isEmailValid ||
-      !passwordMatch;
-  }
+    if (!email || !password || !confirmPassword || !isEmailValid || !passwordMatch) {
+      return true;
+    }
+    if (userTypeAuthor && (!fullName && !newspaper)) {
+        console.log("drugi");
+      return true;
+    }
+    else if(!userTypeAuthor && !userName)
+        return true;
+      
+    return false;
+  };
+
+  const handleFullNameChange = (e) => {
+    setFullName(e.target.value);
+  };
+
+  const handleNewspaperChange = (e) => {
+    setNewspaper(e.target.value);
+  };
 
 
   const handleRegisterSubmit = async (event) => {
     event.preventDefault();
-
     try {
       await axios.get(APIUrl + `Auth/CheckEmail/${email}`);
     } catch (err) {
       setInvalidEmail(true);
-    }    
+    }
 
-    try {
-      await axios.get(APIUrl + `User/GetUserByUsername/${userName}`);
-      setInvalidUsername(true); 
-    } catch (err) {
-      setInvalidUsername(false);
-    }    
+    if (!userTypeAuthor) {
+      try {
+        await axios.get(APIUrl + `User/GetUserByUsername/${userName}`);
+        setInvalidUsername(true);
+      } catch (err) {
+        setInvalidUsername(false);
+      }
+    }
 
-    if (!invalidEmail && !invalidUsername) {
+    if (!userTypeAuthor && !invalidEmail && !invalidUsername) {
       setIsLoading(true);
       await axios.post(APIUrl + "User/AddUser", {
         userName: userName,
@@ -97,6 +117,21 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
           exitRegistration();
         })
         .catch(err => console.log(err)); //ovde ako dodje do greške da se ispiše da se pokuša ponovo ili tako nesto
+      setIsLoading(false);
+    }
+    else if (userTypeAuthor && !invalidEmail) {
+      setIsLoading(true);
+      await axios.post(APIUrl + "Author/AddAuthor", {
+        email: email,
+        password: password,
+        fullName: fullName,
+        newspaper: newspaper
+      })
+        .then(response => {
+          console.log(response);
+          exitRegistration();
+        })
+        .catch(err => console.log(err));
       setIsLoading(false);
     }
   }
@@ -131,14 +166,36 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
             <h1 className="block font-playfair sm:text-3xl font-semibold text-[#07090D] justify-self-center self-center mx-auto">readfeed.</h1>
           </div>
           <form className="mt-4" onSubmit={handleRegisterSubmit}>
-            <FormInput
-              text="Username"
-              required
-              value={userName}
-              onChange={handleUsernameChange}
-              alertCond={invalidUsername}
-              alertText={invalidUsername && "Username already exists"}
-            />
+            <div className='flex flex-row gap-4 justify-center p-2'>
+              <IconButtonCard icon={userIcon} text={"I read"} selected={!userTypeAuthor} onClick={() => setUserTypeAuthor(false)}></IconButtonCard>
+              <IconButtonCard icon={authorIcon} text={"I write"} selected={userTypeAuthor} onClick={() => setUserTypeAuthor(true)}></IconButtonCard>
+            </div>
+            {userTypeAuthor && (
+              <FormInput
+                text="Full Name"
+                required
+                value={fullName}
+                onChange={handleFullNameChange}
+              />
+            )}
+            {userTypeAuthor && (
+              <FormInput
+                text="Newspaper"
+                required
+                value={newspaper}
+                onChange={handleNewspaperChange}
+              />
+            )}
+            {!userTypeAuthor && (
+              <FormInput
+                text="Username"
+                required
+                value={userName}
+                onChange={handleUsernameChange}
+                alertCond={invalidUsername}
+                alertText={invalidUsername && "Username already exists"}
+              />
+            )}
             <FormInput
               text="Email"
               type="email"
@@ -237,12 +294,11 @@ export function DrawLogin({ onRegisterClick, handleLoginClick }) {
     await axios.post(APIUrl + "Auth/Login", {
       email: email,
       password: password,
-      role: "User" //privremeno osim ako ne razdvojimo ui za autore/korisnike 
     })
       .then(request => {
         let data = { ...request.data };
 
-        var user = {
+        let user = {
           ...data.user,
           jwtToken: data.jwtToken
         };
@@ -253,7 +309,7 @@ export function DrawLogin({ onRegisterClick, handleLoginClick }) {
 
         contextSetUser(user);
 
-        var now = new Date();
+        let now = new Date();
         now.setHours(now.getHours() + 6);
 
         localStorage.setItem('ReadfeedUser', JSON.stringify(user));
