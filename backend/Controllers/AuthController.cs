@@ -32,14 +32,14 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
 
-        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password) || string.IsNullOrEmpty(request.Role))
+        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
         return BadRequest("Missing data");
 
         if (request == null){
             return BadRequest("Request is null");
         }
 
-        var user = await _authService.GetUserByEmail(request.Email, request.Role);
+        var user = await _authService.GetUserByEmail(request.Email);
 
         if (user == null)
         {Console.WriteLine("user je null");}
@@ -47,7 +47,7 @@ public class AuthController : ControllerBase
 
         if (user != null && PasswordHasher.VerifyPassword(request.Password, user.Password))
         {
-            var token = _authService.GenerateJwtToken(_configuration, request.Role, request.Email);
+            var token = _authService.GenerateJwtToken(_configuration, user.Role, request.Email);
             var response = new
             {
                 user = user,
@@ -59,9 +59,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("CheckEmail/{email}")]
-    public async Task<IActionResult> CheckEmail(string role, string email)
+    public async Task<IActionResult> CheckEmail(string email)
     {
-        var checkEmail = await _authService.CheckEmail(role, email);
+        var checkEmail = await _authService.CheckEmail(email);
         if (checkEmail == true)
             return BadRequest("Email in use");
         else
@@ -73,5 +73,4 @@ public class LoginRequest //ovo premestiti negde?
 {
     public required string Email { get; set; }
     public required string Password { get; set; }
-    public required string Role { get; set; } //dva razlicita login-a za autore i korisnike
 }

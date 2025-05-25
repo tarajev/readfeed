@@ -48,34 +48,31 @@ public class AuthService
         return token;
     }
 
-    public async Task<UserBase> GetUserByEmail(string email, string role)
+    public async Task<UserBase?> GetUserByEmail(string email)
     {
-        if (role == "User")
+        var user = await _users.Where(user => user.Email == email).FirstOrDefaultAsync();
+        if (user != null)
         {
-            var user = await _users.Where(user => user.Email == email).ToListAsync();
-            return user.FirstOrDefault();
+            user.Role = "User";
+            return user;
         }
-        else
-        {
-            var author = await _authors.Where(author => author.Email == email).ToListAsync();
-            return author.FirstOrDefault();
-        }
+
+        var author = await _authors.Where(author => author.Email == email).FirstOrDefaultAsync();
+        if(author!=null)
+            author.Role = "Author";
+        return author;
     }
-    public async Task<bool> CheckEmail(string role, string email)
+
+    public async Task<bool> CheckEmail(string email)
     {
-        Console.WriteLine("role: " + role);
-        if (role == "User")
-        {
-            var user = await _users.Where(user => user.Email == email).ToListAsync();
-            if (user.FirstOrDefault() != null)
-                return true;
-        }
-        else
-        {
-            var author = await _authors.Where(author => author.Email == email).ToListAsync();
-            if (author.FirstOrDefault() != null)
-                return true;
-        }
+
+        var user = await _users.Where(user => user.Email == email).ToListAsync();
+        if (user.FirstOrDefault() != null)
+            return true;
+
+        var author = await _authors.Where(author => author.Email == email).ToListAsync();
+        if (author.FirstOrDefault() != null)
+            return true;
 
         return false;
     }
