@@ -2,30 +2,27 @@ using Microsoft.AspNetCore.Mvc;
 using Redis.OM.Searching;
 using backend.Model;
 using Redis.OM;
-using Microsoft.VisualBasic;
 using System.Text.RegularExpressions;
-
 using System.Text.Json;
 using StackExchange.Redis;
 using Microsoft.AspNetCore.Authorization;
+
 namespace backend.Controllers;
 
 [ApiController]
 [Authorize(Roles = "User, Author")]
 [Route("NewsArticle")]
-public partial class NewsArticleController : ControllerBase //ne znam zasto je partial kad je samo ova klasa???
+public partial class NewsArticleController(
+    RedisConnectionProvider provider,
+    IConnectionMultiplexer multiplexer
+) : ControllerBase 
 {
-    private readonly RedisCollection<NewsArticle> _news;
-    private readonly RedisConnectionProvider _provider;
-    private readonly IConnectionMultiplexer _multiplexer;
-    public NewsArticleController(RedisConnectionProvider provider, IConnectionMultiplexer multiplexer)
-    {
-        _provider = provider;
-        _news = (RedisCollection<NewsArticle>)provider.RedisCollection<NewsArticle>();
-        _multiplexer = multiplexer;
-    }
+    private readonly RedisCollection<NewsArticle> _news = (RedisCollection<NewsArticle>)provider.RedisCollection<NewsArticle>();
+    private readonly RedisConnectionProvider _provider = provider;
+    private readonly IConnectionMultiplexer _multiplexer = multiplexer;
 
     #region CRUD
+
     [Authorize(Roles = "Author")]
     [HttpPost("AddNewsArticle")]
     public async Task<IActionResult> AddNewsArticle([FromBody] NewsArticle article)
@@ -34,7 +31,12 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
 
         var subscriber = _multiplexer.GetSubscriber();
         var message = JsonSerializer.Serialize(article);
-        await subscriber.PublishAsync(RedisChannel.Literal("news_channel"), message);
+
+        if (!string.IsNullOrWhiteSpace(article.Category))
+        {
+            Console.WriteLine("SENT: " + message);
+            await subscriber.PublishAsync(RedisChannel.Literal($"news:{article.Category}"), message);
+        }
 
         return Ok(article);
     }
@@ -107,18 +109,19 @@ public partial class NewsArticleController : ControllerBase //ne znam zasto je p
         if (System.IO.File.Exists(filePath))
             System.IO.File.Delete(filePath);
 
-        using (var stream = new FileStream(filePath, FileMode.Create)) {
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
             await file.CopyToAsync(stream);
         }
 
         var fileUrl = $"/UploadedFiles/Articles/{fileName}";
         article.Photos = [fileUrl];
-        
+
         await _news.UpdateAsync(article);
 
         return Ok(new { fileUrl });
     }
-    
+
     #endregion
 
     #region Search

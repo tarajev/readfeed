@@ -11,18 +11,11 @@ namespace backend.Controllers;
 [ApiController]
 [Authorize(Roles = "User")]
 [Route("User")]
-public class UserController : ControllerBase
+public class UserController(RedisConnectionProvider provider, AuthService authService) : ControllerBase
 {
-    private readonly RedisCollection<User> _users;
-    private readonly RedisConnectionProvider _provider;
-    private readonly AuthService _authService;
-
-    public UserController(RedisConnectionProvider provider, AuthService authService)
-    {
-        _provider = provider;
-        _users = (RedisCollection<User>)provider.RedisCollection<User>();
-        _authService = authService;
-    }
+    private readonly RedisCollection<User> _users = (RedisCollection<User>)provider.RedisCollection<User>();
+    private readonly RedisConnectionProvider _provider = provider;
+    private readonly AuthService _authService = authService;
 
     [AllowAnonymous]
     [HttpPost("AddUser")]
@@ -34,9 +27,9 @@ public class UserController : ControllerBase
             return BadRequest($"User: '{user.Username}' already exists.");
 
         var emailInUse = await _authService.CheckEmail(user.Email);
-        
+
         if (emailInUse == true)
-             return BadRequest($"Email: '{user.Email}' is already in use.");
+            return BadRequest($"Email: '{user.Email}' is already in use.");
 
         user.Password = PasswordHasher.HashPassword(user.Password);
 

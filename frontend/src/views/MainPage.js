@@ -1,13 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import AuthorizationContext from '../context/AuthorizationContext'
 import axios from 'axios';
 import { Page } from '../components/BasicComponents';
-import Tabs from '../components/Tabs'
 import SlidingPanel from '../components/SlidingPanel';
 import '../assets/colors.css'
 import '../assets/animations.css'
 import NewsFeed from './NewsFeed';
-
 
 export default function DrawMainPage() {
   const { APIUrl, contextUser } = useContext(AuthorizationContext)
@@ -27,7 +25,6 @@ export default function DrawMainPage() {
       .catch(error => {
         console.log(error);
       })
-
   }
 
   useEffect(() => {
@@ -44,11 +41,11 @@ export default function DrawMainPage() {
     console.log("Uklonjeno iz Read Later:", id);
   };
 
-
   return (
-
     <Page overlayActive={overlayActive} loading={true} overlayHandler={setOverlayActive} slidingPanel={<SlidingPanel children={readLater} removeFromSlidingPanel={removeFromReadLaterSection} addToSlidingPanel={addToReadLaterSection} />}>
-      <Tabs DrawTab1={() => <NewsFeed addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection} />} DrawTab2={() => { }}></Tabs>
+      <div className='p-4'>
+        <NewsFeed addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection} />
+      </div>
     </Page>
   );
 }

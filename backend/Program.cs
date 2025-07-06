@@ -1,6 +1,7 @@
 using System.Text;
 using backend.HostedServices;
 using backend.Services;
+using backend.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -26,7 +27,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
         };
     });
 
@@ -57,7 +58,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            []
         }
     });
 });
@@ -86,13 +87,17 @@ builder.Services.AddCors(options =>
 builder.Services.AddHostedService<IndexCreationService>();
 
 
-builder.Services.AddSingleton(new RedisConnectionProvider(builder.Configuration["REDIS_CONNECTION_STRING"]));
+builder.Services.AddSingleton(new RedisConnectionProvider(builder.Configuration["REDIS_CONNECTION_STRING"]!));
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
 
 builder.Services.AddHostedService<NewsSubscriberService>();
 builder.Services.AddScoped<AuthService>();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
+
+app.MapHub<NewsHub>("/newsHub");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

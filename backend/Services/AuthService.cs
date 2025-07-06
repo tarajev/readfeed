@@ -3,28 +3,20 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using backend.Model;
 using Microsoft.IdentityModel.JsonWebTokens;
-using StackExchange.Redis;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Redis.OM;
 using Redis.OM.Searching;
 
 namespace backend.Services;
 
-public class AuthService
+public class AuthService(RedisConnectionProvider provider)
 {
-    private readonly RedisCollection<Author> _authors;
-    private readonly RedisCollection<User> _users;
-    private readonly RedisConnectionProvider _provider;
+    private readonly RedisCollection<Author> _authors = (RedisCollection<Author>)provider.RedisCollection<Author>();
+    private readonly RedisCollection<User> _users = (RedisCollection<User>)provider.RedisCollection<User>();
+    private readonly RedisConnectionProvider _provider = provider;
 
-    public AuthService(RedisConnectionProvider provider)
-    {
-        _provider = provider;
-        _authors = (RedisCollection<Author>)provider.RedisCollection<Author>();
-        _users = (RedisCollection<User>)provider.RedisCollection<User>();
-    }
     public string GenerateJwtToken(IConfiguration _configuration, string role, string email)
     {
-        string key = _configuration["Jwt:Secret"];
+        string key = _configuration["Jwt:Secret"]!;
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -32,10 +24,11 @@ public class AuthService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(
-        [
-            new Claim(ClaimTypes.Role, role),
-            new Claim(ClaimTypes.Email, email)
-        ]),
+                [
+                    new Claim(ClaimTypes.Role, role),
+                    new Claim(ClaimTypes.Email, email)
+                ]
+            ),
             Expires = DateTime.UtcNow.AddMinutes(120),
             SigningCredentials = credentials,
             Issuer = _configuration["Jwt:Issuer"],
@@ -58,23 +51,20 @@ public class AuthService
         }
 
         var author = await _authors.Where(author => author.Email == email).FirstOrDefaultAsync();
-        if(author!=null)
+        if (author != null)
             author.Role = "Author";
+
         return author;
     }
 
     public async Task<bool> CheckEmail(string email)
     {
-
         var user = await _users.Where(user => user.Email == email).ToListAsync();
-        if (user.FirstOrDefault() != null)
-            return true;
+        if (user.FirstOrDefault() != null) return true;
 
         var author = await _authors.Where(author => author.Email == email).ToListAsync();
-        if (author.FirstOrDefault() != null)
-            return true;
+        if (author.FirstOrDefault() != null) return true;
 
         return false;
     }
-
 }
