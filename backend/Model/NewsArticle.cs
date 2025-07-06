@@ -26,7 +26,9 @@ public class NewsArticle //da li cemo da imamo komentare?
 
     public string? Link { get; set; }
 
-    public string? Author { get; set; } //da pamtimo id? 
+    [Indexed]
+    public string? Author { get; set; } 
+    public string? AuthorName { get; set; }
 
     [Indexed(Sortable = true)]
     public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -36,6 +38,6 @@ public class NewsArticle //da li cemo da imamo komentare?
 
     public bool? Upvoted { get; set; }
 
-   public bool? Downvoted { get; set; }
+    public bool? Downvoted { get; set; }
     public bool? Bookmarked { get; set; }
 }

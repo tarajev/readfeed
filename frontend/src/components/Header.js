@@ -42,7 +42,11 @@ export default function Header({ overlayActive, overlayHandler }) {
       setSearchResult(true);
   }
 
-  // TODO - BurgerMenu itemList da se uradi
+  const burgerMenuItems = [{ route: `/`, onClick: () => setSearchResult(true), name: "Search" }];
+  if (contextUser.$type === "Author") burgerMenuItems.push({ route: `/createArticle`, name: "Write Article" });
+  if (contextUser.$type === "Author") burgerMenuItems.push({ route: `/author/`, param: contextUser.id, name: "Profile" });
+  if (contextUser.role === "Guest") burgerMenuItems.push({ route: `/`, onClick: handleLoginClick, name: "Login" });
+  if (contextUser.role !== "Guest") burgerMenuItems.push({ route: '/', onClick: handleLogout, name: "Log out" });
 
   return (
     <>
@@ -56,7 +60,7 @@ export default function Header({ overlayActive, overlayHandler }) {
         {showLogin && <div className="overlay" onClick={handleLoginClick}></div>}
         {showLogin && <DrawLoginForm showRegistration={showRegistration} exitRegistration={exitRegistration} toggleRegistration={toggleRegistration} handleLoginClick={handleLoginClick} />}
         <nav className="absolute shadow-xl top-0 left-0 w-full border-b bg-[#F4F1EC] md:flex-row md:flex-nowrap md:justify-start flex items-center p-8">
-          <div className="w-full mx-auto items-center flex justify-between  md:flex-nowrap flex-wrap md:px-10 px-2">
+          <div className="w-full mx-auto items-center flex justify-between md:flex-nowrap flex-wrap md:px-10 px-2">
             <div className="relative flex hidden lg:block pr-4"> {/*Search postaje deo BurgerMenu za manje ekrane */}
               <img //da li ostaviti?
                 src={searchIcon}
@@ -71,37 +75,44 @@ export default function Header({ overlayActive, overlayHandler }) {
                   onChange={(e) => { setSearch(e.target.value) }}
                   onKeyDown={handleKeyDown}
                 />
-                {contextUser.$type === "Author" ?
-                  <Link route="/createArticle" className="!text-black mt-1">
-                    <div className="flex gap-2">
-                      <img
-                        src={iconWriteArticle}
-                        alt="Write Article"
-                        className="size-7"
-                      />
-                      <p>Write article</p>
-                    </div>
-                  </Link>
-                  : <></>
-                }
               </div>
             </div>
             <Link route="/" className="!no-underline absolute left-1/2 transform -translate-x-1/2 block font-playfair sm:text-3xl font-semibold !text-[#07090D] justify-self-center self-center mx-auto">
               readfeed.
             </Link>
-            <span className="block lg:hidden">
-              <BurgerMenu preventTab={overlayActive} icon={iconBurger} listItemArray={null} grouped size={10} />
+            <span className="block lg:hidden ml-auto">
+              <BurgerMenu preventTab={overlayActive} icon={iconBurger} listItemArray={burgerMenuItems} size={5} />
             </span>
-            <span className="hidden sm:flex items-center mr-1 py-1 max-w-405">
-              {contextUser.role === "Guest" ? (
+            <span className="hidden lg:flex items-center mr-1 py-1 max-w-405">
+              {contextUser.$type === "Author" ?
+                <div className="flex gap-2">
+                  <Link route="/createArticle">
+                    <div className="flex gap-2">
+                      <img
+                        src={iconWriteArticle}
+                        alt="Write Article"
+                        className="size-6"
+                      />
+                      <p>Write article</p>
+                    </div>
+                  </Link>
+                  <p className="text-gray-400">|</p>
+                  <Link className="!text-gray-400" route="/author/" param={contextUser.id}>
+                    Profile
+                  </Link>
+                  <p className="text-gray-400">|</p>
+                </div>
+                : <></>
+              }
+              {contextUser.role === "Guest" ?
                 <Link className='mx-2 !text-gray-400' preventTab={overlayActive} onClick={handleLoginClick}>
                   Log in
                 </Link>
-              ) : (
+                :
                 <Link className='mx-2 !text-gray-400' preventTab={overlayActive} onClick={handleLogout}>
                   Log out
                 </Link>
-              )}
+              }
             </span>
           </div>
         </nav>

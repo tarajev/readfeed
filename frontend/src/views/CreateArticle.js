@@ -99,7 +99,8 @@ export default function ArticlePage() {
       category: category,
       tags: tags.join('|'),
       link: link,
-      author: contextUser?.username // TODO: treba ime i prezime umesto ovoga
+      author: contextUser?.id,
+      authorName: contextUser?.fullName
     }
 
     let result = axios.post(`${APIUrl}NewsArticle/AddNewsArticle`, article, {

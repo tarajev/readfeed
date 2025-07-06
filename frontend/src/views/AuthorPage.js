@@ -13,9 +13,46 @@ export default function AuthorPage() {
   const { APIUrl, contextUser } = useContext(AuthorizationContext);
 
   const [author, setAuthor] = useState(null);
+  const [articles, setArticles] = useState([]);
 
   const [overlayActive, setOverlayActive] = useState(false); // Potrebno za prevenciju background-tabovanja kada je forma aktivna
   const navigate = useNavigate();
+
+  const getAuthorById = async () => {
+    axios.get(`${APIUrl}Author/GetAuthorById/${id}`, {
+      headers: {
+        Authorization: `Bearer ${contextUser.jwtToken}`,
+      }
+    })
+      .then((response) => {
+        setAuthor(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching author:", error);
+      });
+  }
+
+  const getArticlesByAuthor = async () => {
+    axios.get(`${APIUrl}NewsArticle/GetNewsArticleByAuthor/${id}`, {
+      headers: {
+        Authorization: `Bearer ${contextUser.jwtToken}`,
+      }
+    })
+    .then((response) => {
+      console.log(articles)
+      setArticles(response.data)
+    })
+    .catch((error) => {
+      console.error("Error fetching articles:", error);
+    });
+  }
+
+  useEffect(() => {
+    if (contextUser.jwtToken && id) {
+      getAuthorById();
+      getArticlesByAuthor();
+    }
+  }, []);
 
   const testNews = [
     { title: "New AI technology is changing the way developers work", category: "Technology", createdAt: "2025-02-11", score: 120 },
@@ -32,15 +69,20 @@ export default function AuthorPage() {
       <div className='mt-4 mx-2 font-playfair'>
         <div className='grid p-2 grid-cols-12 gap-4 h-fit bg-gradient-to-r from-gray-200 to-[#F4F1EC] rounded-lg'>
           <div className='col-span-3 md:col-span-2 overflow-x-clip content-center '>
-            <img className={`max-w-36 max-h-36 justify-self-center border border-black rounded-lg filter-gray w-28"`} src={iconUser} />
+            <img className={`max-w-36 max-h-36 justify-self-center border border-black rounded-lg filter-gray w-28"`} src={author?.photo ?? iconUser} />
           </div>
           <div className='col-span-9 md:col-span-10'>
-            <div className='sm:text-3xl font-semibold text-[#07090D]'>
-              Some Author
+            <div className='flex items-baseline gap-2'>
+              <h2 className='sm:text-3xl font-semibold text-[#07090D]'>
+                {author?.fullName}
+              </h2>
+              <p className='text-gray-500'>
+                ({author?.newspaper ?? "Independent"})
+              </p>
             </div>
-            <div className='text-gray-600'>
-              This author is an experienced journalist and author, specializing in creating news articles and content in the fields of technology and politics. With years of experience writing for renowned media outlets, Marko stands out for his accuracy and ability to quickly and clearly convey the latest information. His writing style is clear, informative, and objective, always aiming to provide deeper analysis of current events.
-            </div>
+            <p className='text-gray-600'>
+              {author?.bio ?? "This author has no set bio."}
+            </p>
           </div>
         </div>
 
@@ -49,7 +91,7 @@ export default function AuthorPage() {
         </p>
         <hr className='bg-gray-600 pt-0.5 mb-8' />
 
-        <div className='grid grid-cols-3 justify-items-center gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-items-center gap-4'>
           {testNews.map((article, index) => (
             <ArticleDisplay key={index} article={article} />
           ))}

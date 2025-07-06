@@ -53,6 +53,18 @@ public partial class NewsArticleController(
         return Ok(article);
     }
 
+    [HttpGet("GetNewsArticleByAuthor/{authorId}")]
+    public async Task<IActionResult> GetNewsArticleByAuthor(string authorId)
+    {
+        // TODO: Ispravi ovo i proveri model kod NewsArticle, posto sam dodao AuthorName (imali smo Author samo ranije) i dodao sam indexed nzm jel treba
+
+        var articles = await _news
+            .Where(article => article.Author == authorId)
+            .ToListAsync();
+        
+        return Ok(articles);
+    }
+
     [Authorize(Roles = "Author")]
     [HttpPut("UpdateContent/{id}")]
     public async Task<IActionResult> UpdateNewsArticle([FromRoute] string id, [FromBody] NewsArticle newsArticle) //update za title i content

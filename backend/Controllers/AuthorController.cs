@@ -10,18 +10,11 @@ namespace backend.Controllers;
 
 [ApiController]
 [Route("Author")]
-public class AuthorController : ControllerBase
+public class AuthorController(RedisConnectionProvider provider, AuthService authService) : ControllerBase
 {
-    private readonly RedisCollection<Author> _authors;
-    private readonly RedisConnectionProvider _provider;
-    private readonly AuthService _authService;
-
-    public AuthorController(RedisConnectionProvider provider, AuthService authService)
-    {
-        _provider = provider;
-        _authors = (RedisCollection<Author>)provider.RedisCollection<Author>();
-        _authService = authService;
-    }
+    private readonly RedisCollection<Author> _authors = (RedisCollection<Author>)provider.RedisCollection<Author>();
+    private readonly RedisConnectionProvider _provider = provider;
+    private readonly AuthService _authService = authService;
 
     [AllowAnonymous]
     [HttpPost("AddAuthor")]
@@ -31,7 +24,7 @@ public class AuthorController : ControllerBase
 
         if (emailInUse == true)
             return BadRequest($"Email: '{author.Email}' is already in use.");
-            
+
         author.Password = PasswordHasher.HashPassword(author.Password);
         await _authors.InsertAsync(author);
         return Ok("New author was successfully added");
@@ -55,9 +48,7 @@ public class AuthorController : ControllerBase
         var author = await _authors.FindByIdAsync($"Author:{id}");
 
         if (author == null)
-        {
             return NotFound(new { Message = "Author not found" });
-        }
 
 
         Author.Bio = Author.Bio; //na frontendu da se omoguci dugme samo ako se nesto promeni
@@ -74,6 +65,7 @@ public class AuthorController : ControllerBase
     public IActionResult DeleteAuthor([FromRoute] string id)
     {
         var status = _provider.Connection.Unlink($"Author:{id}");
+
         if (status == 1)
             return Ok(status);
         else

@@ -179,7 +179,7 @@ export function Link({ route, disabled, href, onClick, preventTab, className, ch
       disabled={disabled}
       tabIndex={preventTab || disabled ? -1 : 0}
       onClick={disabled ? null : onClick}
-      className={`${disabled ? "text-gray-600 cursor-default" : "text-indigo-400 cursor-pointer hover:underline"} outline-none ${className}`}
+      className={`${disabled ? "text-gray-600 cursor-default" : "text-gray-400 cursor-pointer hover:underline"} outline-none ${className}`}
     >
       {children}
     </Goto>
@@ -194,7 +194,7 @@ export function Checkbox({ value, className, required, preventTab, children, onC
         value={value}
         tabIndex={preventTab ? -1 : 0}
         onChange={onChange}
-        className="focus:ring-2 ring-indigo-600 accent-indigo-600 outline-none hover:ring-2"
+        className="focus:ring-2 ring-gray-600 accent-gray-600 outline-none hover:ring-2"
       />
       <span className="block ml-2 text-sm text-gray-400">
         {children}

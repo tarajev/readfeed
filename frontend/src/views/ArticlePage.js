@@ -9,7 +9,6 @@ import bookmarkIcon from "../resources/img/icon-bookmark-outline.png"
 import arrowUpIconFilled from "../resources/img/arrow-up-filled.png"
 import arrowDownIconFilled from "../resources/img/arrow-down-filled.png"
 import bookmarkIconFilled from "../resources/img/icon-bookmark-filled.png"
-import vienna from "../images/vienna.jpg"
 import Tag from '../components/Tag';
 import ReactQuill from 'react-quill-new';
 

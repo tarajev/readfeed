@@ -15,7 +15,7 @@ const NotificationContainer = () => {
           onClick={() => removeNotification(notification.id)}
         >
           <NotificationCard
-            author={notification.author}
+            author={notification.authorName}
             category={notification.category}
             content={notification.content}
             title={notification.title}

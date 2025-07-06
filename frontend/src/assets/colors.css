@@ -117,12 +117,12 @@
 }
 
 .item {
-  background-color: black;
-  color: white;
+  background-color: #F4F1EC;
+  color: black;
 }
 
 .item:hover {
-  background-color: #5700a2;
+  background-color: lightgray;
   color: black;
 }
 

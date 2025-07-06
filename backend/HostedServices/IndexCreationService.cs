@@ -3,14 +3,9 @@ using Redis.OM;
 
 namespace backend.HostedServices;
 
-
-public class IndexCreationService : IHostedService
+public class IndexCreationService(RedisConnectionProvider provider) : IHostedService
 {
-    private readonly RedisConnectionProvider _provider;
-    public IndexCreationService(RedisConnectionProvider provider)
-    {
-        _provider = provider;
-    }
+    private readonly RedisConnectionProvider _provider = provider;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -24,7 +19,6 @@ public class IndexCreationService : IHostedService
 
         if (info.All(x => x != "author-idx"))
             await _provider.Connection.CreateIndexAsync(typeof(Author));
-        
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
