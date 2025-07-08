@@ -10,5 +10,5 @@ public class User : UserBase
     public required string Username { get; set; }
     
     [Indexed]
-    public List<string> SubscribredCategories { get; set; } = [];
+    public List<string> SubscribedCategories { get; set; } = [];
 }

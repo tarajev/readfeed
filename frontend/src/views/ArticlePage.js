@@ -25,15 +25,49 @@ export default function ArticlePage() {
       return previewArticle ? JSON.parse(previewArticle) : null;
     }
     else
-      return location.state?.article;
+      return location.state?.article || null;
   });
 
-  const [upvotedFilled, setUpvotedFilled] = useState(article.upvoted ? true : false);
-  const [downvotedFilled, setDownvotedFilled] = useState(article.downvoted ? true : false);
-  const [bookmarkedFilled, setBookmarkedFilled] = useState(article.bookmarked ? true : false);
+  const [upvotedFilled, setUpvotedFilled] = useState(false);
+  const [downvotedFilled, setDownvotedFilled] = useState(false);
+  const [bookmarkedFilled, setBookmarkedFilled] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [score, setScore] = useState(0);
 
-  const [tags, setTags] = useState(article.tags.split("|"));
-  const [score, setScore] = useState(article.score);
+  useEffect(() => {
+    if (!article) {
+      if (params.id != null)
+        getArticle();
+      else
+        console.log("Id nije prosledjen");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (article) {
+      setUpvotedFilled(article.upvoted || false);
+      setDownvotedFilled(article.downvoted || false);
+      setBookmarkedFilled(article.bookmarked || false);
+      setTags(article.tags ? article.tags.split("|") : []);
+      setScore(article.score || 0);
+    }
+  }, [article]);
+
+  const getArticle = async () => {
+    var route = `NewsArticle/GetNewsArticleById/${params.id}`;
+    axios.get(`${APIUrl}NewsArticle/GetNewsArticleById/${params.id}`, {
+      headers: {
+        Authorization: `Bearer ${contextUser.jwtToken}`,
+      }
+    })
+      .then((response) => {
+        setArticle(response.data);
+        console.log("pozvan getArticle");
+      })
+      .catch((error) => {
+        console.error("Error fetching article:", error);
+      });
+  }
 
   const addToReadLater = async () => { //treba da se prikaze u read later
     if (isPreview) return;
@@ -175,8 +209,6 @@ export default function ArticlePage() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    console.log(article);
-
     return () => {
       if (isPreview) {
         sessionStorage.removeItem('previewArticle');
@@ -186,52 +218,60 @@ export default function ArticlePage() {
 
   return (
     <Page loading={true} >
-      <div className="px-4 h-full flex flex-col">
-        {isPreview && (
-          <div className="bg-gray-200 border-l-4 border-gray-400 text-gray-700 p-4 mb-4">
-            <p className="font-bold">Preview Mode</p>
-            <p className="text-sm">This is a preview of your article. Voting and bookmarking are disabled.</p>
-          </div>
-        )}
-
-        <div className="mx-auto ">
-          <h1 className='text-center p-10 text-5xl font-bold font-playfair italic'>{article.title}</h1>
+      {!article ? (
+        <div className="p-10 text-center">
+          <p className="text-xl">Loading article...</p>
         </div>
-        <p className='md:mx-60 font-playfair'>Article by: {article.author}</p>
-        <div className="md:mx-60 border-b-4 border-secondary  "></div> {/*linija*/}
-        <div className='gap-4 md:mx-60 mt-2 flex justify-start items-center'>
-          <span className="text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{score}</span>
-          <img className="w-5 h-5" src={upvotedFilled ? arrowUpIconFilled : arrowUpIcon} onClick={() => handleUpvote()}></img>
-          <img className="w-5 h-5" src={downvotedFilled ? arrowDownIconFilled : arrowDownIcon} onClick={() => handleDownvote()}></img>
-          <img className="w-5 h-5" src={bookmarkedFilled ? bookmarkIconFilled : bookmarkIcon} onClick={() => handleBookmarking()}></img>
-          <span className="ml-auto text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{"22.04.2025."}</span>
-        </div>
-        <div className="mx-auto mt-10">
-          <div className="md:mx-40 mb-4 font-playfair sm:text-sm md:text-lg">    {/*Content u zavisnosti od toga kako se bude pamtio? */}
-            <div className="mx-auto my-2 w-md">
-              <img className="object-contain" src={`http://localhost:5000${article.photos[0]}`} /> {/* da se izmeni ako se photos izmeni */}
-            </div>
-            <ReactQuill value={article.content} readOnly theme="snow" modules={{ toolbar: false }} style={{ height: 'auto' }}>
-              <div className="ql-editor" style={{ fontSize: '20px', padding: 0, border: "none", fontFamily: 'Georgia, serif' }} />
-            </ReactQuill>
-          </div>
-          {article.link && article.link.trim() !== "" && (
-            <div className='my-2 md:mx-40 text-dark sm:text-md md:text-lg font-semibold font-playfair'>
-              Read more:{' '}
-              <a href={article.link} className='text-blue-500 hover:underline' target="_blank" rel="noopener noreferrer">
-                {article.link}
-              </a>
+      ) : (
+        <div className="px-4 h-full flex flex-col">
+          {isPreview && (
+            <div className="bg-gray-200 border-l-4 border-gray-400 text-gray-700 p-4 mb-4">
+              <p className="font-bold">Preview Mode</p>
+              <p className="text-sm">This is a preview of your article. Voting and bookmarking are disabled.</p>
             </div>
           )}
-          <div className="flex flex-row md:mx-40">
-            <span className='text-dark sm:text-md md:text-lg font-semibold opacity-80 font-playfair mr-4'>Tags:</span>
-            {tags.map((tag, index) => (
-              <Tag key={index} text={tag} displayOnly={true}></Tag> //da li da bude clickable pa da se prikazu ostale vesti sa tim tagom?
-            ))}
-          </div>
-        </div>
 
-      </div>
+          <div className="mx-auto ">
+            <h1 className='text-center p-10 text-5xl font-bold font-playfair italic'>{article.title}</h1>
+          </div>
+          <p className='md:mx-60 font-playfair'>Article by: {article.authorName}</p>
+          <div className="md:mx-60 border-b-4 border-secondary  "></div> {/*linija*/}
+          <div className='gap-4 md:mx-60 mt-2 flex justify-start items-center'>
+            <span className="text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{score}</span>
+            <img className="w-5 h-5" src={upvotedFilled ? arrowUpIconFilled : arrowUpIcon} onClick={() => handleUpvote()}></img>
+            <img className="w-5 h-5" src={downvotedFilled ? arrowDownIconFilled : arrowDownIcon} onClick={() => handleDownvote()}></img>
+            <img className="w-5 h-5" src={bookmarkedFilled ? bookmarkIconFilled : bookmarkIcon} onClick={() => handleBookmarking()}></img>
+            <span className="ml-auto text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{"22.04.2025."}</span>
+          </div>
+          <div className="mx-auto mt-10">
+            <div className="md:mx-40 mb-4 font-playfair sm:text-sm md:text-lg">    {/*Content u zavisnosti od toga kako se bude pamtio? */}
+              <div className="mx-auto my-2 w-md">
+                {article.photos && article.photos.length > 0 && (
+                  <img className="object-contain" src={isPreview ? article.photos[0] : `http://localhost:5000${article.photos[0]}`} /> 
+                )} {/* da se izmeni ako se photos izmeni */}
+              </div>
+              <ReactQuill value={article.content} readOnly theme="snow" modules={{ toolbar: false }} style={{ height: 'auto' }}>
+                <div className="ql-editor" style={{ fontSize: '20px', padding: 0, border: "none", fontFamily: 'Georgia, serif' }} />
+              </ReactQuill>
+            </div>
+            {article.link && article.link.trim() !== "" && (
+              <div className='my-2 md:mx-40 text-dark sm:text-md md:text-lg font-semibold font-playfair'>
+                Read more:{' '}
+                <a href={article.link} className='text-blue-500 hover:underline' target="_blank" rel="noopener noreferrer">
+                  {article.link}
+                </a>
+              </div>
+            )}
+            <div className="flex flex-row md:mx-40">
+              <span className='text-dark sm:text-md md:text-lg font-semibold opacity-80 font-playfair mr-4'>Tags:</span>
+              {tags.map((tag, index) => (
+                <Tag key={index} text={tag} displayOnly={true}></Tag> //da li da bude clickable pa da se prikazu ostale vesti sa tim tagom?
+              ))}
+            </div>
+          </div>
+
+        </div>
+      )}
     </Page>
     // negde da se stavi ko je objavio?   
   );

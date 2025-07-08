@@ -29,7 +29,7 @@ export default function DrawAddInterests({ onClose, onChange, existingTags }) {
     };
 
     useEffect(() => {
-        const filteredTags = contextUser.subscribredCategories
+        const filteredTags = contextUser.subscribedCategories
             .filter(tag => !selectedTags.includes(tag))
             .map(tag => ({ value: tag, label: tag }));
 

@@ -18,7 +18,7 @@ export default function App() {
     email: "",
     picture: "",
     bio: "",
-    subscribredCategories: [],
+    subscribedCategories: [],
   });
 
   const APIUrl = "http://localhost:5000/";
@@ -37,7 +37,7 @@ export default function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<MainPage />} />
-              <Route path="/articlepage/:title" element={<ArticlePage />}></Route>
+              <Route path="/articlepage/:title/:id/:author" element={<ArticlePage />}></Route>
               <Route path="/createarticle" element={<CreateArticle />}></Route> {/* TODO: Da se stavi pod Auth rutu */}
               <Route path="/author/:id" element={<AuthorPage />} />
               <Route path="*" element={<NotFound />} />

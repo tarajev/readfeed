@@ -9,12 +9,14 @@ import DrawAddInterests from './AddInterests';
 export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSection }) {
     const { APIUrl, contextUser } = useContext(AuthorizationContext)
     const [criteria, setCriteria] = useState("popular")
-    const [tags, setTags] = useState(["World Politics", "Economics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
+    const [tags, setTags] = useState(contextUser.role == "Guest" ? [] : contextUser.subscribedCategories);
+    // const [tags, setTags] = useState(["World Politics", "Economics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
     const [latestNews, setLatestNews] = useState([]);
     const [popularNews, setPopularNews] = useState([]);
     const [popularIndex, setPopularIndex] = useState(0);
     const [latestIndex, setLatestIndex] = useState(0);
     const [drawAddInterests, setDrawInterests] = useState(false);
+    const [moreAvailable, setMoreAvailable] = useState(true);
 
     const testNews = [
         { title: "New AI technology is changing the way developers work", category: "Technology", createdAt: "2025-02-11", score: 120 },
@@ -26,6 +28,11 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
         { title: "New research reveals secrets to a healthy lifestyle", category: "Health", createdAt: "2025-02-07", score: 80 }
     ];
 
+    useEffect(() => {
+        console.log("Context user:", contextUser);
+        console.log("Subscribed:", contextUser.subscribedCategories);
+        setTags(contextUser.role == "Guest" ? [] : contextUser.subscribedCategories || []);
+    }, [contextUser]);
 
     const getMostPopularNews = async (skip, take) => {
         console.log("test");
@@ -52,6 +59,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
             })
             .catch(error => {
                 console.log(error);
+                setMoreAvailable(false);
             })
 
     }
@@ -81,35 +89,38 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
             })
             .catch(error => {
                 console.log(error);
+                setMoreAvailable(false);
             })
 
     }
 
     useEffect(() => {
         console.log(criteria);
-        if (criteria === "popular")
+        if (criteria === "popular" && tags && tags.length > 0)
             getMostPopularNews(popularIndex * 20, 20);
-        else
+        else if (tags && tags.length > 0)
             getLatestNews(latestIndex * 20, 20);
-    }, [criteria, tags, popularIndex])
+    }, [criteria, tags, popularIndex, latestIndex])
 
     return (<>
-        {drawAddInterests && <DrawAddInterests onClose = {()=>setDrawInterests(false)} existingTags={tags} onChange={setTags}></DrawAddInterests> }
+        {drawAddInterests && <DrawAddInterests onClose={() => setDrawInterests(false)} existingTags={tags} onChange={setTags}></DrawAddInterests>}
         {sessionStorage.setItem('scrollPosition', window.scrollY)}
         <div className='grid h-full w-full'>
             <div className='flex justify-between' >
                 <div className='flex flex-wrap items-center'>
-                    {tags.map((tag, index) => (
-                        <Tag key={index} text={tag} onClick={() => setTags(tags.filter(t => t !== tag))}></Tag>
+                    {tags && tags.map((tag, index) => (
+                        <Tag key={index} text={tag} onClick={() => {
+                            const newTags = tags.filter(t => t !== tag); setTags(newTags); setPopularNews([]); setLatestNews([]); setPopularIndex(0); setLatestIndex(0); //brisanje starih vesti
+                        }}></Tag>
                     ))}
-                    <div onClick={() => setDrawInterests(true)} className=' p-1 px-2 rounded-lg font-semibold ml-5 mt-0 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>
+                    {contextUser.role != "Guest" && <div onClick={() => setDrawInterests(true)} className=' p-1 px-2 rounded-lg font-semibold ml-5 mt-0 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>}
                 </div>
                 <div className='justify-self-end ml-[120px] mr-4 '>
                     <select
                         id="newscriteria"
                         name="newscriteria"
                         value={criteria}
-                        onChange={(e) => setCriteria(e.target.value)}
+                        onChange={(e) => { setCriteria(e.target.value); setMoreAvailable(true); }}
                         className="border bg-[#ECE9E4] font-semibold rounded-lg px-2 py-1"
                     >
                         <option value="popular">Popular</option>
@@ -118,7 +129,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
                 </div>
             </div>
 
-            <div className='flex gap-8 flex-wrap justify-evenly mt-20'>
+            <div className='flex gap-8 flex-wrap justify-evenly items-center mt-20'>
                 {criteria === "popular" ?
                     popularNews.map((article, index) => (
                         < ArticleDisplay key={article.id} article={article} addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection}></ArticleDisplay>
@@ -129,7 +140,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
                 }
             </div>
             <div>
-                <button
+                {moreAvailable && <button
                     onClick={() => {
                         if (criteria === "popular")
                             setPopularIndex(index => index + 1);
@@ -139,7 +150,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
                     className="mt-10 p-2 place-self-center bg-secondary shadow-md text-white rounded-full flex items-center gap-2 hover:bg-light"
                 >
                     <img src={arrowDownIconFilled} alt="Load More" className="w-4 h-4" />
-                </button>
+                </button>}
             </div>
         </div >
     </>);

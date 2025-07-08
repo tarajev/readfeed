@@ -40,11 +40,11 @@ public partial class NewsArticleController(
 
         return Ok(article);
     }
-
+      
     [HttpGet("GetNewsArticleById/{id}")]
     public async Task<IActionResult> GetNewsArticleById(string id)
     {
-        var article = await _news.FindByIdAsync($"Article:{id}");
+        var article = await _news.FindByIdAsync(id);
 
         if (article == null)
             return BadRequest("Article was not found.");
@@ -115,7 +115,7 @@ public partial class NewsArticleController(
             Directory.CreateDirectory(uploadsFolder);
 
         var fileExtension = Path.GetExtension(file.FileName);
-        var fileName = article.Title + fileExtension;
+        var fileName = article.Title.Replace(" ", "-") + article.Author + fileExtension; 
         var filePath = Path.Combine(uploadsFolder, fileName);
 
         if (System.IO.File.Exists(filePath))
@@ -131,7 +131,7 @@ public partial class NewsArticleController(
 
         await _news.UpdateAsync(article);
 
-        return Ok(new { fileUrl });
+        return Ok(fileUrl);
     }
 
     #endregion
@@ -196,7 +196,6 @@ public partial class NewsArticleController(
 
         if (!articles.Any())
             return BadRequest("Article was not found.");
-
 
         var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         string upvotedSetKey = $"user:{userId}:upvotes";

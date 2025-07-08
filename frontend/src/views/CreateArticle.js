@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom"
 import AuthorizationContext from "../context/AuthorizationContext";
 import { FileUpload, FormButton, FormInput, Page } from "../components/BasicComponents";
 import Tag from "../components/Tag";
@@ -19,6 +20,8 @@ export default function ArticlePage() {
   const [tagInput, setTagInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const onKeyDown = (e) => {
     if (e.key === "Enter" && tagInput.trim() !== "") {
@@ -68,25 +71,33 @@ export default function ArticlePage() {
     };
 
     sessionStorage.setItem('previewArticle', JSON.stringify(dummyArticle));
-    const newTab = window.open(`/articlepage/preview-${Date.now()}`, '_blank');
+    const newTab = window.open(`/articlepage/preview-${Date.now()}/article/${contextUser.fullName}`, '_blank');
     newTab.focus();
   };
 
-  const uploadArticleThumbnail = async (articleId) => {
+  const uploadArticleThumbnail = async (article) => {
     if (!picture) return;
 
     const formData = new FormData();
     formData.append('file', picture);
 
-    axios.put(`${APIUrl}NewsArticle/UploadArticleThumbnail/${articleId}`, formData, {
+    axios.put(`${APIUrl}NewsArticle/UploadArticleThumbnail/${article.id}`, formData, {
       headers: {
         Authorization: `Bearer ${contextUser.jwtToken}`,
         'Content-Type': 'multipart/form-data'
       }
     })
-    .catch(error => {
-      console.log('Thumbnail upload error:', error);
-    });
+      .then(response => {
+        article.photos = [response.data];
+        console.log(article);
+        navigate(
+          `/articlepage/${encodeURIComponent(article.title)}/${encodeURIComponent(article.id)}/${encodeURIComponent(article.authorName)}`,
+          { state: { article } }
+        );
+      })
+      .catch(error => {
+        console.log('Thumbnail upload error:', error);
+      });
   }
 
   const submitArticle = async () => {
@@ -109,7 +120,8 @@ export default function ArticlePage() {
         'Content-Type': 'application/json'
       }
     }).then(response => {
-      uploadArticleThumbnail(response.data.id);
+      console.log("data" + response.data.title);
+      uploadArticleThumbnail(response.data);
     }).catch(error => {
       console.log(error);
     }).finally(() => {

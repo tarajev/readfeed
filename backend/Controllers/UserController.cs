@@ -74,8 +74,16 @@ public class UserController(RedisConnectionProvider provider, AuthService authSe
     [HttpDelete("DeleteUser/{username}")]
     public IActionResult DeleteUser([FromRoute] string username)
     {
-        var status = _provider.Connection.Unlink($"User:{username}");
-        if (status == 1)
+        var keysToDelete = new[]
+        {
+            $"User:{username}",
+            $"user:{username}:upvotes",
+            $"user:{username}:downvotes",
+            $"user:{username}:readlater"
+        };
+
+        var status = _provider.Connection.Unlink(keysToDelete);
+        if (status >= 1)
             return Ok(status);
         else
             return BadRequest("An error occurred when trying to delete a user.");
@@ -89,9 +97,9 @@ public class UserController(RedisConnectionProvider provider, AuthService authSe
         if (user == null)
             return NotFound($"User: '{username}' not found.");
 
-        if (!user.SubscribredCategories.Contains(category))
+        if (!user.SubscribedCategories.Contains(category))
         {
-            user.SubscribredCategories.Add(category);
+            user.SubscribedCategories.Add(category);
             await _users.SaveAsync();
             return Ok($"User was successfully subscribed to the category: {category}.");
         }
@@ -109,9 +117,9 @@ public class UserController(RedisConnectionProvider provider, AuthService authSe
         if (user == null)
             return NotFound($"User: '{username}' not found.");
 
-        if (user.SubscribredCategories.Contains(category))
+        if (user.SubscribedCategories.Contains(category))
         {
-            user.SubscribredCategories.Remove(category);
+            user.SubscribedCategories.Remove(category);
             await _users.SaveAsync();
             return Ok($"User was successfully unsubscribed from the category: {category}.");
         }
