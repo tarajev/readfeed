@@ -29,7 +29,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Issuer"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
         };
-    });
+    }
+);
 
 
 builder.Services.AddSwaggerGen(c =>
@@ -81,11 +82,11 @@ builder.Services.AddCors(options =>
                             "https://127.0.0.1:3000")
                   .AllowCredentials();
         });
-    });
+    }
+);
 
 
 builder.Services.AddHostedService<IndexCreationService>();
-
 
 builder.Services.AddSingleton(new RedisConnectionProvider(builder.Configuration["REDIS_CONNECTION_STRING"]!));
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
