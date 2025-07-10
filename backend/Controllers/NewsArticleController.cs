@@ -56,8 +56,6 @@ public partial class NewsArticleController(
     [HttpGet("GetNewsArticleByAuthor/{authorId}")]
     public async Task<IActionResult> GetNewsArticleByAuthor(string authorId)
     {
-        // TODO: Ispravi ovo i proveri model kod NewsArticle, posto sam dodao AuthorName (imali smo Author samo ranije) i dodao sam indexed nzm jel treba
-
         var articles = await _news
             .Where(article => article.Author == authorId)
             .ToListAsync();
@@ -115,7 +113,7 @@ public partial class NewsArticleController(
             Directory.CreateDirectory(uploadsFolder);
 
         var fileExtension = Path.GetExtension(file.FileName);
-        var fileName = article.Title.Replace(" ", "-") + article.Author + fileExtension; 
+        var fileName = article.Title!.Replace(" ", "-") + article.Author + fileExtension; 
         var filePath = Path.Combine(uploadsFolder, fileName);
 
         if (System.IO.File.Exists(filePath))

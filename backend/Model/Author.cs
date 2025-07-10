@@ -16,4 +16,6 @@ public class Author : UserBase
 
     [Indexed]
     public required string Newspaper { get; set; }
+
+    public string? Picture { get; set; }
 }

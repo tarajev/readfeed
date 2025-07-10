@@ -67,7 +67,7 @@ export default function ArticlePage() {
       tags: tags.join('|'),
       photos: picture ? [URL.createObjectURL(picture)] : [],
       link: link,
-      author: contextUser?.username // TODO: Ime i prezime umesto ovoga
+      authorName: contextUser?.fullName
     };
 
     sessionStorage.setItem('previewArticle', JSON.stringify(dummyArticle));

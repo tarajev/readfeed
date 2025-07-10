@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { Link as Goto, useLocation } from "react-router-dom";
 import Header from './Header'
 import Footer from './Footer'
-import exitIcon from '../resources/img/exit-icon.png'
 import exitIconBlack from '../resources/img/exit-icon-black.png'
 import eye from '../resources/img/password-eye.png'
 import eyeSlashed from '../resources/img/password-eye-slashed.png'
@@ -15,7 +14,6 @@ import { default as MUIButton } from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DrawLoadingScreen from '../views/LoadingScreen';
-import SlidingPanel from '../components/SlidingPanel.js';
 import AuthorizationContext from '../context/AuthorizationContext';
 
 export function Page({ overlayActive, overlayHandler, children, slidingPanel, loading = false, timeout = 500 }) {
@@ -84,7 +82,7 @@ export function Button({ type, onClick, disabled, preventTab, className, childre
   );
 }
 
-export function FileUpload({ className, width, height, text, buttonText, setPicture, limitInMegabytes = 1 }) {
+export function FileUpload({ className, width, height, text, buttonText, setPicture, limitInMegabytes = 1, filenameHidden }) {
   const [fileName, setFileName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -104,7 +102,10 @@ export function FileUpload({ className, width, height, text, buttonText, setPict
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file && file.size < limitInMegabytes * 1000000) {
-      setFileName(file.name);
+      if (!filenameHidden) {
+        setFileName(file.name);
+      }
+
       setPicture(file);
       setErrorMessage('');
       console.log(file);
@@ -240,7 +241,7 @@ export function Input({ placeholder, value, preventTab, date, minDate, maxDate, 
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className={`relative h-fit z-10 w-full px-3 py-2 pr-10 bg-gray-900 shadow-md text-white focus:ring outline-none ring-violet-900 border-1 border-indigo-950 ${className} ${disabled ? 'opacity-50' : ''}`}
+        className={`relative h-fit z-10 w-full px-3 py-2 pr-10 shadow-md focus:ring outline-none ring-gray-600 border-1 border-gray-600 ${className} ${disabled ? 'opacity-50' : ''}`}
       />
     ) : (
       <input
@@ -341,6 +342,55 @@ export function Password({ text, textClass, labelClass, required, visibility, in
         {alertCond && <p className="text-accent text-xs mt-1">{alertText}</p>}
       </div>
     </label>
+  );
+}
+
+export function EditableInput({ initialValue, preventTab, label, setValue }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newValue, setNewValue] = useState(initialValue);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setIsEditing(false);
+    if (setValue && newValue !== initialValue) {
+      setValue(newValue);
+    }
+  };
+
+  const handleKeyEnter = (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleSave();
+    }
+  };
+
+  useEffect(() => {
+    setNewValue(initialValue);
+  }, [isEditing])
+
+  return (
+    <div className="mb-2">
+      {isEditing ? (
+        <div className="flex flex-col gap-2">
+          <Input multiline rows={3} value={newValue}
+            onChange={(e) => setNewValue(e.target.value)}
+            onKeyDown={handleKeyEnter}
+            onBlur={handleSave}
+            preventTab={preventTab}
+            className="bg-gray-100 text-black border border-gray-400 resize-none"
+          />
+        </div>
+      ) : (
+        <div className="flex justify-between">
+          <span className="block mb-1">{label}</span>
+          <button onClick={handleEditClick} tabIndex={preventTab ? -1 : 0} className="text-sm underline hover:opacity-80 ml-4">
+            Edit
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
