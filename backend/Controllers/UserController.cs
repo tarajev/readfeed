@@ -89,43 +89,67 @@ public class UserController(RedisConnectionProvider provider, AuthService authSe
             return BadRequest("An error occurred when trying to delete a user.");
     }
 
-    [HttpPut("SubscribeUserToCategory/{username}/{category}")]
-    public async Task<IActionResult> SubscribeUserToCategory([FromRoute] string username, [FromRoute] string category)
+    [HttpPut("SubscribeUserToCategories/{username}/{categories}")]
+    public async Task<IActionResult> SubscribeUserToCategory([FromRoute] string username, [FromRoute] string[] categories)
     {
         var user = await _users.FindByIdAsync($"User:{username}");
 
         if (user == null)
             return NotFound($"User: '{username}' not found.");
 
-        if (!user.SubscribedCategories.Contains(category))
+        var newlyAdded = new List<string>();
+        var alreadySubscribed = new List<string>();
+
+        foreach (var category in categories)
         {
-            user.SubscribedCategories.Add(category);
+            if (!user.SubscribedCategories.Contains(category))
+            {
+                user.SubscribedCategories.Add(category);
+                newlyAdded.Add(category);
+            }
+            else
+            {
+                alreadySubscribed.Add(category);
+            }
+        }
+
+        if (newlyAdded.Count > 0)
+        {
             await _users.SaveAsync();
-            return Ok($"User was successfully subscribed to the category: {category}.");
         }
-        else
-        {
-            return BadRequest($"User was already subscribed to the category: {category}.");
-        }
+
+        return Ok($"User subscribed to {newlyAdded.Count} new categories. {alreadySubscribed.Count} were already subscribed.");
     }
 
-    [HttpPut("UnsubscribeUserFromCategory/{username}/{category}")]
-    public async Task<IActionResult> UnsubscribeUserFromCategory([FromRoute] string username, [FromRoute] string category)
+    [HttpPut("UnsubscribeUserFromCategories/{username}/{categories}")]
+    public async Task<IActionResult> UnsubscribeUserFromCategory([FromRoute] string username, [FromRoute] string[] categories)
     {
         var user = await _users.FindByIdAsync($"User:{username}");
 
         if (user == null)
             return NotFound($"User: '{username}' not found.");
 
-        if (user.SubscribedCategories.Contains(category))
+        var removed = new List<string>();
+        var notSubscribed = new List<string>();
+
+        foreach (var category in categories)
         {
-            user.SubscribedCategories.Remove(category);
+            if (user.SubscribedCategories.Contains(category))
+            {
+                user.SubscribedCategories.Remove(category);
+                removed.Add(category);
+            }
+            else
+            {
+                notSubscribed.Add(category);
+            }
+        }
+
+        if (removed.Count > 0)
+        {
             await _users.SaveAsync();
-            return Ok($"User was successfully unsubscribed from the category: {category}.");
         }
-        else
-        {
-            return BadRequest($"User isn't subscribed to the category: {category}.");
-        }
+
+        return Ok($"User unsubscribed from {removed.Count} categories. {notSubscribed.Count} categories were not subscribed.");
     }
 }

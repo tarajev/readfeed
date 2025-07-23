@@ -52,12 +52,14 @@ export function Page({ overlayActive, overlayHandler, children, slidingPanel, lo
 
   // TODO - Da se uradi za check context usera da li je ulogovan vec bio ili ne?
 
+  const showHeader = location.pathname !== "/category-selection";
+
   return (
     <>
       <DrawLoadingScreen loading={pageLoading} />
       <PreloadHandler />
       <div className='bg-[#F4F1EC] min-h-screen'>
-        <Header overlayActive={overlayActive} overlayHandler={overlayHandler} />
+        {showHeader && <Header overlayActive={overlayActive} overlayHandler={overlayHandler} />}
         <div className="py-12  shadow-lg h-fit mx-auto max-w-3xl lg:max-w-6xl xl:max-w-7xl " style={{ minHeight: `calc(100vh - 150px)` }}>
           {children}
         </div>
@@ -162,7 +164,7 @@ export function FormButton({ text, disabled, onClick, loading, className }) {
         type="submit"
         disabled={disabled}
         onClick={onClick}
-        className={`w-full px-4 py-2 text-sm text-white text-center bg-accent rounded-md ${!disabled ? "hover:bg-[#a9222f]" : "cursor-not-allowed"} ${className}`}
+        className={`w-full px-4 py-2 text-sm text-white text-center bg-accent rounded-md ${!disabled ? "hover:bg-[#a9222f]" : "!bg-gray-400 opacity-80 cursor-not-allowed"} ${className}`}
       >
         <div className='flex items-center justify-center text-md font-medium'>
           {loading && <CircularProgress size={15} className='mr-2' sx={{ 'color': 'white' }} />}{text}

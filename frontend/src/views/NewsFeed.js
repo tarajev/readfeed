@@ -96,15 +96,15 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
     {sessionStorage.setItem('scrollPosition', window.scrollY)}
     <div className='grid h-full w-full'>
       <div className='flex justify-between'>
-          <div className='flex flex-wrap items-center'>
-            {tags && tags.map((tag, index) => (
-              <Tag key={index} text={tag} onClick={() => {
-                const newTags = tags.filter(t => t !== tag); setTags(newTags); setPopularNews([]); setLatestNews([]); setPopularIndex(0); setLatestIndex(0); //brisanje starih vesti
-              }}></Tag>
-            ))}
-            {(contextUser.role != "Guest" && contextUser.$type !== "Author") && <div onClick={() => setDrawInterests(true)} className=' p-1 px-2 rounded-lg font-semibold ml-5 mt-0 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>}
-          </div>
-          : <></>
+        <div className='flex flex-wrap items-center'>
+          {tags && tags.map((tag, index) => (
+            <Tag key={index} text={tag} onClick={() => {
+              const newTags = tags.filter(t => t !== tag); setTags(newTags); setPopularNews([]); setLatestNews([]); setPopularIndex(0); setLatestIndex(0); //brisanje starih vesti
+            }}></Tag>
+          ))}
+          {(contextUser.role != "Guest" && contextUser.$type !== "Author") && <div onClick={() => setDrawInterests(true)} className='p-1 px-2 rounded-lg font-semibold ml-5 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>}
+        </div>
+        : <></>
         <div className='justify-self-end ml-[120px] mr-4 '>
           <select
             id="newscriteria"

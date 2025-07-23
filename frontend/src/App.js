@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthorizationContext from './context/AuthorizationContext';
 import './App.css';
@@ -9,6 +10,35 @@ import ArticlePage from "./views/ArticlePage";
 import CreateArticle from "./views/CreateArticle";
 import NotificationContainer from './components/NotificationContainer';
 import { NotificationProvider } from './context/NotificationContext';
+import CategorySelectionPage from './views/CategorySelection';
+
+function AppRoutes() {
+  const { contextUser } = useContext(AuthorizationContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (
+      contextUser.role !== "Guest" &&
+      Array.isArray(contextUser.subscribedCategories) &&
+      contextUser.subscribedCategories.length < 3
+    ) {
+      if (window.location.pathname !== "/category-selection") {
+        navigate("/category-selection");
+      }
+    }
+  }, [contextUser, navigate]);
+
+  return (
+    <Routes>
+      <Route path="/" element={<MainPage />} />
+      <Route path="/category-selection" element={<CategorySelectionPage />} />
+      <Route path="/articlepage/:title/:id/:author" element={<ArticlePage />} />
+      <Route path="/createarticle" element={<CreateArticle />} />
+      <Route path="/author/:id" element={<AuthorPage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 export default function App() {
   const [contextUser, contextSetUser] = useState({
@@ -24,28 +54,20 @@ export default function App() {
   const APIUrl = "http://localhost:5000/";
   const value = { APIUrl, contextUser, contextSetUser };
 
-  var storageUser = localStorage.getItem('ReadfeedUser');
-  if (contextUser.role == "Guest" && storageUser) { //ako se osvezi stranica
+  var storageUser = localStorage.getItem("ReadfeedUser");
+  if (contextUser.role === "Guest" && storageUser) {
     var storageUserJson = JSON.parse(storageUser);
     contextSetUser(storageUserJson);
   }
 
   return (
-    <div>
-      <AuthorizationContext.Provider value={value}>
-        <NotificationProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<MainPage />} />
-              <Route path="/articlepage/:title/:id/:author" element={<ArticlePage />}></Route>
-              <Route path="/createarticle" element={<CreateArticle />}></Route> {/* TODO: Da se stavi pod Auth rutu */}
-              <Route path="/author/:id" element={<AuthorPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-          <NotificationContainer />
-        </NotificationProvider>
-      </AuthorizationContext.Provider>
-    </div>
+    <AuthorizationContext.Provider value={value}>
+      <NotificationProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+        <NotificationContainer />
+      </NotificationProvider>
+    </AuthorizationContext.Provider>
   );
 }
