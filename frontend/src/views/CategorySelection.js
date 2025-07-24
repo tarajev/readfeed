@@ -36,9 +36,10 @@ export default function CategorySelectionPage() {
   async function accept() {
     if (selected.length < 3) return;
 
-    axios.put(`${APIUrl}User/SubscribeUserToCategories/${contextUser.username}/${selected.join(",")}`, null, {
+    axios.put(`${APIUrl}User/SubscribeUserToCategories/${contextUser.username}`, selected, {
       headers: {
         Authorization: `Bearer ${contextUser.jwtToken}`,
+        'Content-Type': 'application/json'
       },
     })
       .then(() => {
@@ -72,7 +73,7 @@ export default function CategorySelectionPage() {
           disabled={selected.length < 3}
           onClick={accept}
           loading={false}
-          className="text-2xl px-10"
+          className="!text-2xl !px-10"
         />
       </div>
     </Page>

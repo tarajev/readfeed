@@ -20,12 +20,10 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
 
   useEffect(() => {
     console.log("Context user:", contextUser);
-    console.log("Subscribed:", contextUser.subscribedCategories);
     setTags(contextUser.role == "Guest" ? [] : contextUser.subscribedCategories || []);
   }, [contextUser]);
 
   const getMostPopularNews = async (skip, take) => {
-    console.log("test");
     var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${contextUser.username}`;
     await axios.get(APIUrl + route, {
       params: {
@@ -74,7 +72,6 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
           );
           return [...prevNews, ...newArticles];
         });
-        console.log(result.data)
         //setLatestNews(result.data);
       })
       .catch(error => {
@@ -84,7 +81,6 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
   }
 
   useEffect(() => {
-    console.log(criteria);
     if (criteria === "popular" && tags && tags.length > 0)
       getMostPopularNews(popularIndex * 20, 20);
     else if (tags && tags.length > 0)

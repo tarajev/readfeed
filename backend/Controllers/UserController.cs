@@ -89,8 +89,8 @@ public class UserController(RedisConnectionProvider provider, AuthService authSe
             return BadRequest("An error occurred when trying to delete a user.");
     }
 
-    [HttpPut("SubscribeUserToCategories/{username}/{categories}")]
-    public async Task<IActionResult> SubscribeUserToCategory([FromRoute] string username, [FromRoute] string[] categories)
+    [HttpPut("SubscribeUserToCategories/{username}")]
+    public async Task<IActionResult> SubscribeUserToCategory([FromRoute] string username, [FromBody] string[] categories)
     {
         var user = await _users.FindByIdAsync($"User:{username}");
 
@@ -121,8 +121,8 @@ public class UserController(RedisConnectionProvider provider, AuthService authSe
         return Ok($"User subscribed to {newlyAdded.Count} new categories. {alreadySubscribed.Count} were already subscribed.");
     }
 
-    [HttpPut("UnsubscribeUserFromCategories/{username}/{categories}")]
-    public async Task<IActionResult> UnsubscribeUserFromCategory([FromRoute] string username, [FromRoute] string[] categories)
+    [HttpPut("UnsubscribeUserFromCategories/{username}")]
+    public async Task<IActionResult> UnsubscribeUserFromCategory([FromRoute] string username, [FromBody] string[] categories)
     {
         var user = await _users.FindByIdAsync($"User:{username}");
 

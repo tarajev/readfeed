@@ -70,12 +70,11 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
       return true;
     }
     if (userTypeAuthor && (!fullName && !newspaper)) {
-        console.log("drugi");
       return true;
     }
-    else if(!userTypeAuthor && !userName)
-        return true;
-      
+    else if (!userTypeAuthor && !userName)
+      return true;
+
     return false;
   };
 
@@ -113,7 +112,6 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
         password: password
       })
         .then(response => {
-          console.log(response);
           exitRegistration();
         })
         .catch(err => console.log(err)); //ovde ako dodje do greške da se ispiše da se pokuša ponovo ili tako nesto
@@ -128,7 +126,6 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
         newspaper: newspaper
       })
         .then(response => {
-          console.log(response);
           exitRegistration();
         })
         .catch(err => console.log(err));

@@ -62,7 +62,6 @@ export default function ArticlePage() {
     })
       .then((response) => {
         setArticle(response.data);
-        console.log("pozvan getArticle");
       })
       .catch((error) => {
         console.error("Error fetching article:", error);
@@ -78,7 +77,6 @@ export default function ArticlePage() {
         Authorization: `Bearer ${contextUser.jwtToken}`,
       }
     }).then(result => {
-      console.log(result.data);
       setBookmarkedFilled(!bookmarkedFilled);
     }).catch(error => {
       console.log(error);
@@ -94,7 +92,6 @@ export default function ArticlePage() {
         Authorization: `Bearer ${contextUser.jwtToken}`,
       }
     }).then(result => {
-      console.log(result.data);
       setBookmarkedFilled(!bookmarkedFilled);
     }).catch(error => {
       console.log(error);
@@ -110,7 +107,6 @@ export default function ArticlePage() {
         Authorization: `Bearer ${contextUser.jwtToken}`,
       }
     }).then(result => {
-      console.log(result.data);
       setScore(score => score + 1);
       setUpvotedFilled(!upvotedFilled);
     }).catch(error => {
@@ -127,7 +123,6 @@ export default function ArticlePage() {
         Authorization: `Bearer ${contextUser.jwtToken}`,
       }
     }).then(result => {
-      console.log(result.data);
       setScore(score => score - 1);
       setDownvotedFilled(!downvotedFilled);
     }).catch(error => {
@@ -144,7 +139,6 @@ export default function ArticlePage() {
         Authorization: `Bearer ${contextUser.jwtToken}`,
       }
     }).then(result => {
-      console.log(result.data);
       setScore(score => score + 1);
       setDownvotedFilled(!downvotedFilled);
     }).catch(error => {
@@ -161,7 +155,6 @@ export default function ArticlePage() {
         Authorization: `Bearer ${contextUser.jwtToken}`,
       }
     }).then(result => {
-      console.log(result.data);
       setScore(score => score - 1);
       setUpvotedFilled(!upvotedFilled);
     }).catch(error => {

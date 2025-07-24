@@ -89,7 +89,6 @@ export default function ArticlePage() {
     })
       .then(response => {
         article.photos = [response.data];
-        console.log(article);
         navigate(
           `/articlepage/${encodeURIComponent(article.title)}/${encodeURIComponent(article.id)}/${encodeURIComponent(article.authorName)}`,
           { state: { article } }
@@ -120,7 +119,6 @@ export default function ArticlePage() {
         'Content-Type': 'application/json'
       }
     }).then(response => {
-      console.log("data" + response.data.title);
       uploadArticleThumbnail(response.data);
     }).catch(error => {
       console.log(error);

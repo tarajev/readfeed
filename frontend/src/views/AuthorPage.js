@@ -62,7 +62,6 @@ export default function AuthorPage() {
       }
     })
       .then(response => {
-        console.log(response);
         window.location.reload();
       })
       .catch(error => {
@@ -82,10 +81,6 @@ export default function AuthorPage() {
       uploadAuthorPicture();
     }
   }, [picture]);
-
-  useEffect(() => {
-    console.log(author);
-  }, [author])
 
   useEffect(() => {
     if (!authorBio || authorBio === author.bio) return;

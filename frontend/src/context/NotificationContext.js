@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import * as signalR from '@microsoft/signalr';
+import AuthorizationContext from './AuthorizationContext';
 
 const NotificationContext = createContext();
 
@@ -14,91 +15,70 @@ export const useNotification = () => {
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [connection, setConnection] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const connectionRef = useRef(null);
-  const isConnectingRef = useRef(false);
+  const { contextUser } = useContext(AuthorizationContext);
 
   useEffect(() => {
-    const connectSignalR = async () => {
-      // Da ne moze vise puta da se konektuje (baca error)
-      if (isConnectingRef.current || connectionRef.current) {
-        return;
-      }
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5000/newsHub')
+      .withAutomaticReconnect()
+      .build();
 
-      isConnectingRef.current = true;
+    setConnection(newConnection);
 
-      try {
-        const newConnection = new signalR.HubConnectionBuilder()
-          .withUrl('http://localhost:5000/newsHub')
-          .withAutomaticReconnect()
-          .build();
- 
-        newConnection.on('ReceiveNewsArticle', (article) => {
-          addNotification(article);
-        });
-
-        await newConnection.start();
-        
-        connectionRef.current = newConnection;
-        setConnection(newConnection);
-        setIsConnected(true);
+    newConnection
+      .start()
+      .then(() => {
         console.log('SignalR Connected');
 
-      } catch (error) {
-        console.error('SignalR Connection Error:', error);
-        setIsConnected(false);
-      } finally {
-        isConnectingRef.current = false;
-      }
-    };
+        newConnection.on('ReceiveNewsArticle', (article) => {
+          if (
+            contextUser?.subscribedCategories?.includes(article.category)
+          ) {
+            addNotification(article);
+          } else {
+            console.log(
+              `Skipped notification for category '${article.category}' not in subscribedCategories`
+            );
+          }
+        });
+      })
+      .catch((err) => console.error('SignalR Connection Error: ', err));
 
-    connectSignalR();
-
-    // Dispose
     return () => {
-      if (connectionRef.current) {
-        connectionRef.current.stop();
-        connectionRef.current = null;
-        setConnection(null);
-        setIsConnected(false);
-        isConnectingRef.current = false;
+      if (newConnection) {
+        newConnection.stop();
       }
     };
-  }, []);
+  }, [contextUser]);
 
   const addNotification = (article) => {
     const id = Date.now() + Math.random();
     const notification = {
       ...article,
       id,
-      author: article.authorName,
-      category: article.category,
-      title: article.title,
-      content: article.content,
-      tags: article.tags,
-      createdAt: article.createdAt,
     };
 
-    setNotifications(prev => [...prev, notification]);
+    setNotifications((prev) => [...prev, notification]);
 
-    // Notifikacija da se pomeri za 7 sekundi
     setTimeout(() => {
       removeNotification(id);
     }, 7000);
   };
 
   const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   return (
-    <NotificationContext.Provider value={{
-      notifications,
-      addNotification,
-      removeNotification,
-      connection,
-      isConnected
-    }}>
+    <NotificationContext.Provider
+      value={{
+        notifications,
+        addNotification,
+        removeNotification,
+        connection,
+        isConnected: connection?.state === signalR.HubConnectionState.Connected,
+      }}
+    >
       {children}
     </NotificationContext.Provider>
   );

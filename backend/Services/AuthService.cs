@@ -12,7 +12,6 @@ public class AuthService(RedisConnectionProvider provider)
 {
     private readonly RedisCollection<Author> _authors = (RedisCollection<Author>)provider.RedisCollection<Author>();
     private readonly RedisCollection<User> _users = (RedisCollection<User>)provider.RedisCollection<User>();
-    private readonly RedisConnectionProvider _provider = provider;
 
     public string GenerateJwtToken(IConfiguration _configuration, string role, string email)
     {

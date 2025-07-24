@@ -20,7 +20,6 @@ export default function DrawMainPage() {
       }
     }).then(result => {
       setReadLater(result.data);
-      console.log(result.data)
     })
       .catch(error => {
         console.log(error);
@@ -33,12 +32,10 @@ export default function DrawMainPage() {
 
   const addToReadLaterSection = (newItem) => {
     setReadLater(prev => [...prev, newItem]);
-    console.log("Dodato u Read Later:", newItem);
   };
 
   const removeFromReadLaterSection = (id) => {
     setReadLater(prev => prev.filter(article => article.id !== id));
-    console.log("Uklonjeno iz Read Later:", id);
   };
 
   return (
