@@ -8,7 +8,7 @@ import axios from "axios";
 
 export const ARTICLE_CATEGORIES = [
   "Politics", "Technology", "Science", "Art", "Sports", "Music", "Travel", "Food", "Health", "Business", "Environment",
-  "Education", "Culture", "Finance", "Entertainment", "Lifestyle", "Automotive", "Fashion", "Gaming", "World"
+  "Education", "Culture", "Finance", "Entertainment", "Lifestyle", "Real Estate", "Automotive", "Fashion", "Gaming", "Parenting", "Law", "World"
 ];
 
 export default function CategorySelectionPage() {
@@ -17,10 +17,12 @@ export default function CategorySelectionPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("ReadfeedUser") || "{}");
+    if (contextUser.role == "User") {
+      const userData = JSON.parse(localStorage.getItem("ReadfeedUser") || "{}");
 
-    if (userData?.subscribedCategories?.length >= 3) {
-      navigate("/", { replace: true });
+      if (userData?.subscribedCategories?.length >= 3) {
+        navigate("/", { replace: true });
+      }
     }
   }, []);
 

@@ -16,6 +16,7 @@ export default function ArticlePage() {
   const { APIUrl, contextUser } = useContext(AuthorizationContext)
   const location = useLocation();
   const params = useParams();
+  const [articleDetials, setArticleDetails] = useState([])
 
   const isPreview = params.title?.startsWith('preview-');
 
@@ -54,14 +55,11 @@ export default function ArticlePage() {
   }, [article]);
 
   const getArticle = async () => {
-    var route = `NewsArticle/GetNewsArticleById/${params.id}`;
-    axios.get(`${APIUrl}NewsArticle/GetNewsArticleById/${params.id}`, {
-      headers: {
-        Authorization: `Bearer ${contextUser.jwtToken}`,
-      }
-    })
+    console.log("getArticle");
+    axios.get(`${APIUrl}NewsArticle/GetNewsArticleById/${params.id}`)
       .then((response) => {
         setArticle(response.data);
+        console.log("data" + response.data);
       })
       .catch((error) => {
         console.error("Error fetching article:", error);
@@ -231,16 +229,16 @@ export default function ArticlePage() {
           <div className="md:mx-60 border-b-4 border-secondary  "></div> {/*linija*/}
           <div className='gap-4 md:mx-60 mt-2 flex justify-start items-center'>
             <span className="text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{score}</span>
-            <img className="w-5 h-5" src={upvotedFilled ? arrowUpIconFilled : arrowUpIcon} onClick={() => handleUpvote()}></img>
-            <img className="w-5 h-5" src={downvotedFilled ? arrowDownIconFilled : arrowDownIcon} onClick={() => handleDownvote()}></img>
-            <img className="w-5 h-5" src={bookmarkedFilled ? bookmarkIconFilled : bookmarkIcon} onClick={() => handleBookmarking()}></img>
+            <img className={`w-5 h-5 ${contextUser.$type === "User" ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`} src={upvotedFilled ? arrowUpIconFilled : arrowUpIcon} onClick={contextUser.$type === "User" ? handleUpvote : () => { }}></img>
+            <img className={`w-5 h-5 ${contextUser.$type === "User" ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`} src={downvotedFilled ? arrowDownIconFilled : arrowDownIcon} onClick={contextUser.$type === "User" ? handleDownvote : () => { }}></img>
+            <img className={`w-5 h-5 ${contextUser.$type === "User" ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`} src={bookmarkedFilled ? bookmarkIconFilled : bookmarkIcon} onClick={contextUser.$type === "User" ? handleBookmarking : () => { }}></img>
             <span className="ml-auto text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{"22.04.2025."}</span>
           </div>
           <div className="mx-auto mt-10">
             <div className="md:mx-40 mb-4 font-playfair sm:text-sm md:text-lg">    {/*Content u zavisnosti od toga kako se bude pamtio? */}
               <div className="mx-auto my-2 w-md">
                 {article.photos && article.photos.length > 0 && (
-                  <img className="object-contain" src={isPreview ? article.photos[0] : `http://localhost:5000${article.photos[0]}`} /> 
+                  <img className="object-contain" src={isPreview ? article.photos[0] : `http://localhost:5000${article.photos[0]}`} />
                 )} {/* da se izmeni ako se photos izmeni */}
               </div>
               <ReactQuill value={article.content} readOnly theme="snow" modules={{ toolbar: false }} style={{ height: 'auto' }}>

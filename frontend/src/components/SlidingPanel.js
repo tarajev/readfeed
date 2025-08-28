@@ -29,7 +29,7 @@ export default function SlidingPanel({ children, removeFromSlidingPanel }) {
       <h3 className="text-center text-accent font-playfair text-lg p-2">Read Later</h3>
       {data ? (
         <div className="overflow-y-auto max-h-full flex flex-1 flex-col justify-items-center gap-4 ml-4 pb-14">{data.map((article) => ( 
-          < ArticleDisplay className="!max-w-full !shadow-sm border-2 border-accent/40" key={article.id} article={article} removeFromReadLaterSection={removeFromSlidingPanel}></ArticleDisplay>
+          < ArticleDisplay className="!max-w-full !shadow-sm border-2 border-accent/40" key={article.id} article={{ ...article, bookmarked: true }} removeFromReadLaterSection={removeFromSlidingPanel}></ArticleDisplay>
         ))}</div>
       ) : (<div></div>)}
     </div>

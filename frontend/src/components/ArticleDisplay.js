@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import axios from 'axios';
 import AuthorizationContext from '../context/AuthorizationContext'
 import arrowUpIcon from "../resources/img/arrow-up-outline.png"
@@ -10,7 +10,7 @@ import bookmarkIconFilled from "../resources/img/icon-bookmark-filled.png"
 import vienna from "../images/vienna.jpg"
 import { useNavigate } from "react-router-dom"
 
-export default function ArticleDisplay({ article, className, removeFromReadLaterSection, addToReadLaterSection }) {
+export default function ArticleDisplay({ article, className, removeFromReadLaterSection, addToReadLaterSection, readLater }) {
   const { APIUrl, contextUser } = useContext(AuthorizationContext)
   const [upvotedFilled, setUpvotedFilled] = useState(article.upvoted ? true : false);
   const [downvotedFilled, setDownvotedFilled] = useState(article.downvoted ? true : false);
@@ -139,6 +139,13 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
     navigate(`/articlepage/${encodeURIComponent(article.title)}/${encodeURIComponent(article.id)}/${encodeURIComponent(article.authorName)}`, { state: { article } });
   }
 
+  useEffect(() => {
+    if (readLater) {
+      const isBookmarked = readLater.some(a => a.id === article.id);
+      setBookmarkedFilled(isBookmarked);
+    }
+  }, [readLater, article.id]);
+
   return (
     <div className={`grid w-[330px] h-fit p-5 cursor-default bg-[#ECE9E4] shadow-xl rounded-md ${className}`}>
       <div className="flex w-fit h-fit mb-2 text-bold rounded-lg hover:bg-white cursor-pointer" onClick={() => handleOnClick()}>
@@ -153,9 +160,9 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
       </div>
       <div className="flex gap-2 items-center">
         <span className="text-dark sm:text-md md:text-lg font-semibold opacity-80 font-playfair">{score}</span>
-        <img className="w-4 h-4" src={upvotedFilled ? arrowUpIconFilled : arrowUpIcon} onClick={() => handleUpvote()}></img>
-        <img className="w-4 h-4" src={downvotedFilled ? arrowDownIconFilled : arrowDownIcon} onClick={() => handleDownvote()}></img>
-        <img className=" ml-auto w-4 h-4" src={bookmarkedFilled ? bookmarkIconFilled : bookmarkIcon} onClick={() => handleBookmarking()}></img>
+        <img className={`w-4 h-4 ${contextUser.$type === "User" ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`} src={upvotedFilled ? arrowUpIconFilled : arrowUpIcon} onClick={contextUser.$type === "User" ? handleUpvote : () => { }}></img>
+        <img className={`w-4 h-4 ${contextUser.$type === "User" ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`} src={downvotedFilled ? arrowDownIconFilled : arrowDownIcon} onClick={contextUser.$type === "User" ? handleDownvote : () => { }}></img>
+        <img className={`ml-auto w-4 h-4 ${contextUser.$type === "User" ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`} src={bookmarkedFilled ? bookmarkIconFilled : bookmarkIcon} onClick={contextUser.$type === "User" ? handleBookmarking : () => { }}></img>
       </div>
     </div>
   );

@@ -10,12 +10,11 @@ using Microsoft.AspNetCore.Authorization;
 namespace backend.Controllers;
 
 [ApiController]
-[Authorize(Roles = "User, Author")]
 [Route("NewsArticle")]
 public partial class NewsArticleController(
     RedisConnectionProvider provider,
     IConnectionMultiplexer multiplexer
-) : ControllerBase 
+) : ControllerBase
 {
     private readonly RedisCollection<NewsArticle> _news = (RedisCollection<NewsArticle>)provider.RedisCollection<NewsArticle>();
     private readonly RedisConnectionProvider _provider = provider;
@@ -40,7 +39,7 @@ public partial class NewsArticleController(
 
         return Ok(article);
     }
-      
+
     [HttpGet("GetNewsArticleById/{id}")]
     public async Task<IActionResult> GetNewsArticleById(string id)
     {
@@ -59,7 +58,7 @@ public partial class NewsArticleController(
         var articles = await _news
             .Where(article => article.Author == authorId)
             .ToListAsync();
-        
+
         return Ok(articles);
     }
 
@@ -113,7 +112,7 @@ public partial class NewsArticleController(
             Directory.CreateDirectory(uploadsFolder);
 
         var fileExtension = Path.GetExtension(file.FileName);
-        var fileName = article.Title!.Replace(" ", "-") + article.Author + fileExtension; 
+        var fileName = article.Title!.Replace(" ", "-") + article.Author + fileExtension;
         var filePath = Path.Combine(uploadsFolder, fileName);
 
         if (System.IO.File.Exists(filePath))
@@ -173,6 +172,7 @@ public partial class NewsArticleController(
             Photos = article.Photos,
             Link = article.Link,
             Author = article.Author,
+            AuthorName = article.AuthorName,
             CreatedAt = article.CreatedAt,
             Upvoted = upvotesIds.Contains(article.Id),
             Downvoted = downvotesIds.Contains(article.Id),
@@ -219,6 +219,7 @@ public partial class NewsArticleController(
             Photos = article.Photos,
             Link = article.Link,
             Author = article.Author,
+            AuthorName = article.AuthorName,
             CreatedAt = article.CreatedAt,
             Upvoted = upvotesIds.Contains(article.Id),
             Downvoted = downvotesIds.Contains(article.Id),
@@ -265,6 +266,7 @@ public partial class NewsArticleController(
     #region Upvote/Downvote
     // videti u kom trenutku će se brisati iz ovih setova vesti
 
+    [Authorize(Roles = "User")]
     [HttpPut("UpvoteNewsArticle/{userId}/{articleId}")]
     public async Task<IActionResult> UpvoteNewsArticle(string userId, string articleId)
     {
@@ -292,7 +294,7 @@ public partial class NewsArticleController(
             return BadRequest("Article is no longer available");
     }
 
-
+    [Authorize(Roles = "User")]
     [HttpPut("DownvoteNewsArticle/{userId}/{articleId}")]
     public async Task<IActionResult> DownvoteNewsArticle(string userId, string articleId)
     {
@@ -321,6 +323,7 @@ public partial class NewsArticleController(
             return BadRequest("Article is no longer available");
     }
 
+    [Authorize(Roles = "User")]
     [HttpPut("RemoveUpvoteNewsArticle/{userId}/{articleId}")]
     public async Task<IActionResult> RemoveUpvoteNewsArticle(string userId, string articleId)
     {
@@ -340,6 +343,7 @@ public partial class NewsArticleController(
 
     }
 
+    [Authorize(Roles = "User")]
     [HttpPut("RemoveDownvoteNewsArticle/{userId}/{articleId}")]
     public async Task<IActionResult> RemoveDownvoteNewsArticle(string userId, string articleId)
     {
@@ -371,6 +375,7 @@ public partial class NewsArticleController(
     /// elemente sa datumom koji je prošao (zastarele vesti) i vraćamo preostale, validne.
     /// </summary>
 
+    [Authorize(Roles = "User")]
     [HttpPost("AddToReadLater/{userId}/{articleId}")]
     public async Task<IActionResult> AddToReadLater(string userId, string articleId)
     {
@@ -391,6 +396,7 @@ public partial class NewsArticleController(
             return BadRequest("Article is no longer available");
     }
 
+    [Authorize(Roles = "User")]
     [HttpGet("GetReadLaterArticles/{userId}")]
     public async Task<IActionResult> GetReadLaterArticles(string userId)
     {
@@ -436,6 +442,7 @@ public partial class NewsArticleController(
         return Ok(readLaterArticles);
     }
 
+    [Authorize(Roles = "User")]
     [HttpDelete("RemoveArticleFromReadLater/{userId}/{articleId}")]
     public async Task<IActionResult> RemoveArticleFromReadLater(string userId, string articleId)
     {

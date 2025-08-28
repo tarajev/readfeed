@@ -39,9 +39,9 @@ export default function DrawMainPage() {
   };
 
   return (
-    <Page overlayActive={overlayActive} loading={true} overlayHandler={setOverlayActive} slidingPanel={<SlidingPanel children={readLater} removeFromSlidingPanel={removeFromReadLaterSection} addToSlidingPanel={addToReadLaterSection} />}>
+    <Page overlayActive={overlayActive} loading={true} overlayHandler={setOverlayActive} slidingPanel={contextUser.$type === "User" ? (<SlidingPanel children={readLater} removeFromSlidingPanel={removeFromReadLaterSection} addToSlidingPanel={addToReadLaterSection} />): null}>
       <div className='p-4'>
-        <NewsFeed addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection} />
+        <NewsFeed addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection}  readLater={readLater} />
       </div>
     </Page>
   );

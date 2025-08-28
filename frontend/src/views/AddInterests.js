@@ -124,7 +124,7 @@ export default function DrawAddInterests({ onClose, onChange, existingTags }) {
                         <span>Subscription</span>
                     </div>
                     {categories.map((name, index) => (
-                        <CategorySelectionRow key={index} category={name} filtered={selectedTags.includes(name)} alreadySubscribed={contextUser.subscribedCategories.includes(name)} removeCategory={handleRemoveTag} addCategory={handleAddTag} subscribe={addToSubscriptions} unsubscribe={removeFromSubscriptions}></CategorySelectionRow>
+                        <CategorySelectionRow key={index} category={name} filtered={selectedTags.includes(name)} alreadySubscribed={contextUser.subscribedCategories?.includes(name)} removeCategory={handleRemoveTag} addCategory={handleAddTag} subscribe={addToSubscriptions} unsubscribe={removeFromSubscriptions}></CategorySelectionRow>
                     ))}
                 </div>
                 <div className="mx-auto">

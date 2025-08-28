@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom"
 import AuthorizationContext from "../context/AuthorizationContext";
 import { FileUpload, FormButton, FormInput, Page } from "../components/BasicComponents";
+import { ARTICLE_CATEGORIES } from '../views/CategorySelection'
 import Tag from "../components/Tag";
 import axios from "axios";
 import ReactQuill from 'react-quill-new'
@@ -20,6 +21,7 @@ export default function ArticlePage() {
   const [tagInput, setTagInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [categories, setCategories] = useState(ARTICLE_CATEGORIES);
 
   const navigate = useNavigate();
 
@@ -136,9 +138,26 @@ export default function ArticlePage() {
           <div className="grid grid-cols-3 gap-6">
             <div className="col-span-3 sm:col-span-1">
               <div className="px-3 pb-3 pt-2 border border-gray-300 rounded-md">
-                <FormInput text="Category:" required value={category} onChange={(e) => setCategory(e.target.value)} className="!border-gray-300" />
+                <label className="block mb-1">
+                  <span className="text-gray-700 bold">Category:</span>
+                  <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                  onFocus={(e) => { e.target.size = 10; }}
+                  onBlur={(e) => { e.target.size = 1; }}
+                  className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#a9222f]"
+                >
+                  <option value="" disabled>-- Select category --</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
               </div>
-
               <div className="mt-6 px-3 pb-3 pt-2 border border-gray-300 rounded-md">
                 <FormInput text="Tags:" required value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={onKeyDown} className="mb-2 !border-gray-300" />
                 <div className="flex flex-wrap gap-2 mt-2 h-28 overflow-y-auto">

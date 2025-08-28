@@ -6,10 +6,12 @@ import ArticleDisplay from '../components/ArticleDisplay'
 import arrowDownIconFilled from "../resources/img/arrow-down-filled.png"
 import DrawAddInterests from './AddInterests';
 
-export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSection }) {
-  const { APIUrl, contextUser } = useContext(AuthorizationContext)
-  const [criteria, setCriteria] = useState("popular")
-  const [tags, setTags] = useState(contextUser.role == "Guest" ? [] : contextUser.subscribedCategories);
+export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSection, readLater }) {
+  const { APIUrl, contextUser } = useContext(AuthorizationContext);
+  const [criteria, setCriteria] = useState("popular");
+
+  const BASIC_ARTICLE_CATEGORIES = ["Politics", "Technology", "Science", "Art", "Sports", "Health", "Business", "Entertainment", "World"];
+  const [tags, setTags] = useState(contextUser.$type != "User" ? BASIC_ARTICLE_CATEGORIES : contextUser.subscribedCategories);
   // const [tags, setTags] = useState(["World Politics", "Economics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
   const [latestNews, setLatestNews] = useState([]);
   const [popularNews, setPopularNews] = useState([]);
@@ -20,7 +22,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
 
   useEffect(() => {
     console.log("Context user:", contextUser);
-    setTags(contextUser.role == "Guest" ? [] : contextUser.subscribedCategories || []);
+    setTags(contextUser.$type != "User" ? BASIC_ARTICLE_CATEGORIES : contextUser.subscribedCategories || []);
   }, [contextUser]);
 
   const getMostPopularNews = async (skip, take) => {
@@ -37,6 +39,8 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
       }
     })
       .then(result => {
+        console.log("getPopular");
+        console.log(result.data);
         setPopularNews(prevNews => {
           const newArticles = result.data.filter(
             article => !prevNews.some(existing => existing.id === article.id)
@@ -53,6 +57,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
   }
 
   const getLatestNews = async (skip, take) => {
+    console.log("getlatest");
     var route = `NewsArticle/GetMostRecentNewsArticles/${skip}/${take}/${contextUser.username}`;
     await axios.get(APIUrl + route, {
       params: {
@@ -98,7 +103,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
               const newTags = tags.filter(t => t !== tag); setTags(newTags); setPopularNews([]); setLatestNews([]); setPopularIndex(0); setLatestIndex(0); //brisanje starih vesti
             }}></Tag>
           ))}
-          {(contextUser.role != "Guest" && contextUser.$type !== "Author") && <div onClick={() => setDrawInterests(true)} className='p-1 px-2 rounded-lg font-semibold ml-5 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>}
+          <div onClick={() => setDrawInterests(true)} className='p-1 px-2 rounded-lg font-semibold ml-5 my-auto hover:cursor-pointer hover:bg-[#ECE9E4]'>+ Add interests</div>
         </div>
         : <></>
         <div className='justify-self-end ml-[120px] mr-4 '>
@@ -118,10 +123,22 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
       <div className='flex gap-8 flex-wrap justify-evenly items-center mt-20'>
         {criteria === "popular" ?
           popularNews.map((article, index) => (
-            < ArticleDisplay key={article.id} article={article} addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection}></ArticleDisplay>
+            <ArticleDisplay
+              key={article.id}
+              article={article}
+              addToReadLaterSection={addToReadLaterSection}
+              removeFromReadLaterSection={removeFromReadLaterSection}
+              readLater={readLater}
+            />
           )) :
           latestNews.map((article, index) => (
-            < ArticleDisplay key={article.id} article={article} addToReadLaterSection={addToReadLaterSection} removeFromReadLaterSection={removeFromReadLaterSection}></ArticleDisplay>
+            <ArticleDisplay
+              key={article.id}
+              article={article}
+              addToReadLaterSection={addToReadLaterSection}
+              removeFromReadLaterSection={removeFromReadLaterSection}
+              readLater={readLater} //da bi se sinhronizovalo sa readLater
+            />
           ))
         }
       </div>
