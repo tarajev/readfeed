@@ -28,7 +28,7 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
       setBookmarkedFilled(!bookmarkedFilled);
       addToReadLaterSection(article);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -44,7 +44,7 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
         removeFromReadLaterSection(article.id);
       }
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -58,7 +58,7 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
       setScore(score => score + 1);
       setUpvotedFilled(!upvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -72,7 +72,7 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
       setScore(score => score - 1);
       setDownvotedFilled(!downvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -86,7 +86,7 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
       setScore(score => score + 1);
       setDownvotedFilled(!downvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -100,7 +100,7 @@ export default function ArticleDisplay({ article, className, removeFromReadLater
       setScore(score => score - 1);
       setUpvotedFilled(!upvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 

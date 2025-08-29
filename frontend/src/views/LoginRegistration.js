@@ -114,7 +114,7 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
         .then(response => {
           exitRegistration();
         })
-        .catch(err => console.log(err)); //ovde ako dodje do greške da se ispiše da se pokuša ponovo ili tako nesto
+        .catch(err => console.error(err)); //ovde ako dodje do greške da se ispiše da se pokuša ponovo ili tako nesto
       setIsLoading(false);
     }
     else if (userTypeAuthor && !invalidEmail) {
@@ -128,7 +128,7 @@ export function DrawRegistration({ onLoginClick, exitRegistration, handleLoginCl
         .then(response => {
           exitRegistration();
         })
-        .catch(err => console.log(err));
+        .catch(err => console.error(err));
       setIsLoading(false);
     }
   }
@@ -302,8 +302,6 @@ export function DrawLogin({ onRegisterClick, handleLoginClick }) {
 
         delete user.password;
 
-        console.log(user);
-
         contextSetUser(user);
 
         let now = new Date();
@@ -315,7 +313,7 @@ export function DrawLogin({ onRegisterClick, handleLoginClick }) {
         handleLoginClick();
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         setLoginError("Pogrešan E-Mail ili šifra!");
       })
     setIsLoading(false);

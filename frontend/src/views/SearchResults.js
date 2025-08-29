@@ -13,7 +13,6 @@ export default function SearchResults({ query, onClose }) {
   const [result, setResult] = useState([]);
 
   const searchNewsArticles = async (skip, take, query) => {
-    //var route = `NewsArticle/SearchByTitleAndTags/${skip}/${take}`; //da li imati keywords pretragu pa koristiti ovo? ili samo pretrazivati title i tagove bez contenta
     var route = `NewsArticle/FullTextSearch/${skip}/${take}/${query}`;
     await axios.get(APIUrl + route, {
       headers: {
@@ -21,11 +20,10 @@ export default function SearchResults({ query, onClose }) {
       }
     })
       .then(result => {
-        //setResult((prev) => { return [...prev, ...result.data] });
         setResult(result.data);
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
       })
   }
 
@@ -47,7 +45,7 @@ export default function SearchResults({ query, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-white bg-opacity-90 z-[9999] overflow-auto ">
-      <div className='w-2/3 mx-auto h-full  shadow-black-400 inset-shadow-accent inset-shadow-md shadow-lg p-10 flex bg-white flex flex-col items-center '>
+      <div className='sm:w-2/3 mx-auto h-full shadow-black-400 inset-shadow-accent inset-shadow-md shadow-lg p-10 flex bg-white flex-col items-center '>
         <Exit className={"w-6 ml-auto mb-auto top-0 right-0"} onClick={onClose}></Exit>
         <div className="relative w-full max-w-2xl">
           <img
@@ -67,7 +65,6 @@ export default function SearchResults({ query, onClose }) {
         {/* Ovde ide prikaz rezultata */}
         <div className="mt-10 flex flex-row justify-center gap-4 flex-wrap max-w-screen overflow-x-auto h-fit">
           {result.map((article) => (
-            // <p>{article.title} + NESTO</p>
             <ArticleDisplay article={article}></ArticleDisplay>
           ))}
         </div>

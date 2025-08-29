@@ -32,6 +32,7 @@ public class AuthorController(RedisConnectionProvider provider, AuthService auth
         return Ok("New author was successfully added");
     }
 
+    [AllowAnonymous]
     [HttpGet("GetAuthorById/{id}")]
     public async Task<IActionResult> GetAuthorById(string id)
     {

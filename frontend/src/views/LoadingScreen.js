@@ -15,7 +15,7 @@ export default function DrawLoadingScreen({ loading }) {
     >
       <div className="w-full p-8 color-primary">
         <div className='flex justify-center'>
-        <div className=" font-playfair md:text-4xl font-semibold text-[#07090D] mx-auto">readfeed.</div>
+          <div className=" font-playfair md:text-4xl font-semibold text-[#07090D] mx-auto">readfeed.</div>
         </div>
         <LinearProgress className="rounded-xl" color="inherit" />
       </div>

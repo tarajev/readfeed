@@ -97,7 +97,7 @@ export default function ArticlePage() {
         );
       })
       .catch(error => {
-        console.log('Thumbnail upload error:', error);
+        console.error('Thumbnail upload error:', error);
       });
   }
 
@@ -123,10 +123,9 @@ export default function ArticlePage() {
     }).then(response => {
       uploadArticleThumbnail(response.data);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     }).finally(() => {
       setLoading(false);
-      // if (result) window.location.reload();
     });
   }
 
@@ -146,9 +145,7 @@ export default function ArticlePage() {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   required
-                  onFocus={(e) => { e.target.size = 10; }}
-                  onBlur={(e) => { e.target.size = 1; }}
-                  className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#a9222f]"
+                  className="w-full border border-gray-300 bg-secondary rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#a9222f]"
                 >
                   <option value="" disabled>-- Select category --</option>
                   {categories.map((c) => (

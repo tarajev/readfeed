@@ -22,17 +22,14 @@ export default function AuthorPage() {
   const navigate = useNavigate();
 
   const getAuthorById = async () => {
-    axios.get(`${APIUrl}Author/GetAuthorById/${id}`, {
-      headers: {
-        Authorization: `Bearer ${contextUser.jwtToken}`,
-      }
-    })
-      .then((response) => {
-        setAuthor(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching author:", error);
-      });
+    const headers = {};
+    if (contextUser.jwtToken) {
+      headers.Authorization = `Bearer ${contextUser.jwtToken}`;
+    }
+
+    axios.get(`${APIUrl}Author/GetAuthorById/${id}`, { headers })
+      .then((response) => setAuthor(response.data))
+      .catch((error) => console.error("Error fetching author:", error));
   }
 
   const getArticlesByAuthor = async () => {
@@ -65,12 +62,12 @@ export default function AuthorPage() {
         window.location.reload();
       })
       .catch(error => {
-        console.log('Thumbnail upload error:', error);
+        console.error('Thumbnail upload error:', error);
       });
   }
 
   useEffect(() => {
-    if (contextUser.jwtToken && id) {
+    if (id) {
       getAuthorById();
       getArticlesByAuthor();
     }
@@ -85,16 +82,17 @@ export default function AuthorPage() {
   useEffect(() => {
     if (!authorBio || authorBio === author.bio) return;
 
-  axios.put(`${APIUrl}Author/UpdateAuthor/${contextUser.id}`, JSON.stringify(authorBio), {
-    headers: {
-      Authorization: `Bearer ${contextUser.jwtToken}`,
-      'Content-Type': 'application/json'
-    }})
+    axios.put(`${APIUrl}Author/UpdateAuthor/${contextUser.id}`, JSON.stringify(authorBio), {
+      headers: {
+        Authorization: `Bearer ${contextUser.jwtToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
       .then(response => {
-        window.location.reload();
+        setAuthor(prev => prev ? { ...prev, bio: authorBio } : prev);
       })
       .catch(error => {
-        console.log('Thumbnail upload error:', error);
+        console.error('Thumbnail upload error:', error);
       });
   })
 

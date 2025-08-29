@@ -8,6 +8,8 @@ import NotFound from './views/NotFound';
 import AuthorPage from './views/AuthorPage';
 import ArticlePage from "./views/ArticlePage";
 import CreateArticle from "./views/CreateArticle";
+import Authorization from './components/Authorization';
+import Unauthorized from './views/Unauthorized';
 import NotificationContainer from './components/NotificationContainer';
 import { NotificationProvider } from './context/NotificationContext';
 import CategorySelectionPage from './views/CategorySelection';
@@ -33,8 +35,13 @@ function AppRoutes() {
       <Route path="/" element={<MainPage />} />
       <Route path="/category-selection" element={<CategorySelectionPage />} />
       <Route path="/articlepage/:title/:id/:author" element={<ArticlePage />} />
-      <Route path="/createarticle" element={<CreateArticle />} />
+
+      <Route element={<Authorization requiredPermissions={["CAN_CREATE_ARTICLE"]} />}>
+        <Route path="/createarticle" element={<CreateArticle />} />
+      </Route>
+
       <Route path="/author/:id" element={<AuthorPage />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

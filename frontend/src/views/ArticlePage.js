@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from 'react'
 import { useLocation, useParams } from "react-router-dom";
 import axios from 'axios';
 import AuthorizationContext from '../context/AuthorizationContext'
-import { Page } from '../components/BasicComponents';
+import { Page, Link } from '../components/BasicComponents';
 import arrowUpIcon from "../resources/img/arrow-up-outline.png"
 import arrowDownIcon from "../resources/img/arrow-down-outline.png"
 import bookmarkIcon from "../resources/img/icon-bookmark-outline.png"
@@ -39,8 +39,6 @@ export default function ArticlePage() {
     if (!article) {
       if (params.id != null)
         getArticle();
-      else
-        console.log("Id nije prosledjen");
     }
   }, []);
 
@@ -55,11 +53,9 @@ export default function ArticlePage() {
   }, [article]);
 
   const getArticle = async () => {
-    console.log("getArticle");
     axios.get(`${APIUrl}NewsArticle/GetNewsArticleById/${params.id}`)
       .then((response) => {
         setArticle(response.data);
-        console.log("data" + response.data);
       })
       .catch((error) => {
         console.error("Error fetching article:", error);
@@ -77,7 +73,7 @@ export default function ArticlePage() {
     }).then(result => {
       setBookmarkedFilled(!bookmarkedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -92,7 +88,7 @@ export default function ArticlePage() {
     }).then(result => {
       setBookmarkedFilled(!bookmarkedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -108,7 +104,7 @@ export default function ArticlePage() {
       setScore(score => score + 1);
       setUpvotedFilled(!upvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -124,7 +120,7 @@ export default function ArticlePage() {
       setScore(score => score - 1);
       setDownvotedFilled(!downvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -140,7 +136,7 @@ export default function ArticlePage() {
       setScore(score => score + 1);
       setDownvotedFilled(!downvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -156,7 +152,7 @@ export default function ArticlePage() {
       setScore(score => score - 1);
       setUpvotedFilled(!upvotedFilled);
     }).catch(error => {
-      console.log(error);
+      console.error(error);
     });
   }
 
@@ -225,7 +221,9 @@ export default function ArticlePage() {
           <div className="mx-auto ">
             <h1 className='text-center p-10 text-5xl font-bold font-playfair italic'>{article.title}</h1>
           </div>
-          <p className='md:mx-60 font-playfair'>Article by: {article.authorName}</p>
+          <div className='md:mx-60 font-playfair'>
+            Article by: <Link route={`/author/${article.author}`}>{article.authorName}</Link>
+          </div>
           <div className="md:mx-60 border-b-4 border-secondary  "></div> {/*linija*/}
           <div className='gap-4 md:mx-60 mt-2 flex justify-start items-center'>
             <span className="text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{score}</span>
@@ -235,7 +233,7 @@ export default function ArticlePage() {
             <span className="ml-auto text-dark sm:text-lg md:text-xl font-semibold opacity-80 font-playfair">{"22.04.2025."}</span>
           </div>
           <div className="mx-auto mt-10">
-            <div className="md:mx-40 mb-4 font-playfair sm:text-sm md:text-lg">    {/*Content u zavisnosti od toga kako se bude pamtio? */}
+            <div className="md:mx-40 mb-4 font-playfair sm:text-sm md:text-lg"> {/*Content u zavisnosti od toga kako se bude pamtio? */}
               <div className="mx-auto my-2 w-md">
                 {article.photos && article.photos.length > 0 && (
                   <img className="object-contain" src={isPreview ? article.photos[0] : `http://localhost:5000${article.photos[0]}`} />

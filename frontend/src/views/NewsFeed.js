@@ -12,7 +12,6 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
 
   const BASIC_ARTICLE_CATEGORIES = ["Politics", "Technology", "Science", "Art", "Sports", "Health", "Business", "Entertainment", "World"];
   const [tags, setTags] = useState(contextUser.$type != "User" ? BASIC_ARTICLE_CATEGORIES : contextUser.subscribedCategories);
-  // const [tags, setTags] = useState(["World Politics", "Economics", "Sports", "Politics", "Climate", "Tech", "Health", "Music", "Movies", "Dance", "Television", "Lifestyle", "Arts", "Cooking"])
   const [latestNews, setLatestNews] = useState([]);
   const [popularNews, setPopularNews] = useState([]);
   const [popularIndex, setPopularIndex] = useState(0);
@@ -21,7 +20,6 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
   const [moreAvailable, setMoreAvailable] = useState(true);
 
   useEffect(() => {
-    console.log("Context user:", contextUser);
     setTags(contextUser.$type != "User" ? BASIC_ARTICLE_CATEGORIES : contextUser.subscribedCategories || []);
   }, [contextUser]);
 
@@ -39,25 +37,20 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
       }
     })
       .then(result => {
-        console.log("getPopular");
-        console.log(result.data);
         setPopularNews(prevNews => {
           const newArticles = result.data.filter(
             article => !prevNews.some(existing => existing.id === article.id)
           );
           return [...prevNews, ...newArticles];
         });
-        //setPopularNews(result.data);
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         setMoreAvailable(false);
       })
-
   }
 
   const getLatestNews = async (skip, take) => {
-    console.log("getlatest");
     var route = `NewsArticle/GetMostRecentNewsArticles/${skip}/${take}/${contextUser.username}`;
     await axios.get(APIUrl + route, {
       params: {
@@ -77,10 +70,9 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
           );
           return [...prevNews, ...newArticles];
         });
-        //setLatestNews(result.data);
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
         setMoreAvailable(false);
       })
   }
