@@ -4,17 +4,17 @@ using Redis.OM.Modeling;
 namespace backend.Model;
 
 [Document(StorageType = StorageType.Json, Prefixes = new[] { "Article" })]
-public class NewsArticle //da li cemo da imamo komentare?
+public class NewsArticle 
 {
     [RedisIdField]
     [Indexed]
     public string? Id { get; set; }
 
     [Searchable]
-    public string? Title { get; set; } // pretrazivanje po naslovu
+    public string? Title { get; set; } 
 
     [Searchable]
-    public string? Content { get; set; } // tekst članka za full-text pretragu eventualno?
+    public string? Content { get; set; } 
 
     [Indexed]
     public string? Category { get; set; }

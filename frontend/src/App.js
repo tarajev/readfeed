@@ -35,11 +35,9 @@ function AppRoutes() {
       <Route path="/" element={<MainPage />} />
       <Route path="/category-selection" element={<CategorySelectionPage />} />
       <Route path="/articlepage/:title/:id/:author" element={<ArticlePage />} />
-
       <Route element={<Authorization requiredPermissions={["CAN_CREATE_ARTICLE"]} />}>
         <Route path="/createarticle" element={<CreateArticle />} />
       </Route>
-
       <Route path="/author/:id" element={<AuthorPage />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
@@ -48,6 +46,7 @@ function AppRoutes() {
 }
 
 export default function App() {
+
   const [contextUser, contextSetUser] = useState({
     username: "",
     role: "Guest",
@@ -58,14 +57,21 @@ export default function App() {
     subscribedCategories: [],
   });
 
+
+  useEffect(() => {
+    try {
+      const storageUser = localStorage.getItem('ReadfeedUser');
+      if (storageUser) {
+        const storageUserJson = JSON.parse(storageUser);
+        contextSetUser(storageUserJson);
+      }
+    } catch (error) {
+      console.error('Error loading user from localStorage:', error);
+    }
+  }, []);
+
   const APIUrl = "http://localhost:5000/";
   const value = { APIUrl, contextUser, contextSetUser };
-
-  var storageUser = localStorage.getItem("ReadfeedUser");
-  if (contextUser.role === "Guest" && storageUser) {
-    var storageUserJson = JSON.parse(storageUser);
-    contextSetUser(storageUserJson);
-  }
 
   return (
     <AuthorizationContext.Provider value={value}>

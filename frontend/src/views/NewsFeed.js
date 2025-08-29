@@ -11,7 +11,10 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
   const [criteria, setCriteria] = useState("popular");
 
   const BASIC_ARTICLE_CATEGORIES = ["Politics", "Technology", "Science", "Art", "Sports", "Health", "Business", "Entertainment", "World"];
-  const [tags, setTags] = useState(contextUser.$type != "User" ? BASIC_ARTICLE_CATEGORIES : contextUser.subscribedCategories);
+  const [tags, setTags] = useState(() => {
+    if (!contextUser) return [];
+    return contextUser.$type !== "User" ? BASIC_ARTICLE_CATEGORIES : contextUser.subscribedCategories;
+  });
   const [latestNews, setLatestNews] = useState([]);
   const [popularNews, setPopularNews] = useState([]);
   const [popularIndex, setPopularIndex] = useState(0);
@@ -24,7 +27,7 @@ export default function NewsFeed({ addToReadLaterSection, removeFromReadLaterSec
   }, [contextUser]);
 
   const getMostPopularNews = async (skip, take) => {
-    var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${contextUser.username}`;
+    var route = `NewsArticle/GetMostPopularNewsArticles/${skip}/${take}/${contextUser.username ? contextUser.username :"-1"}`;
     await axios.get(APIUrl + route, {
       params: {
         followedCategories: tags

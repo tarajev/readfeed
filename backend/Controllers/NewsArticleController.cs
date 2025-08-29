@@ -48,7 +48,6 @@ public partial class NewsArticleController(
         if (article == null)
             return BadRequest("Article was not found.");
 
-        // article.CreatedAt = article.CreatedAt.ToLocalTime();
         return Ok(article);
     }
 
@@ -148,18 +147,27 @@ public partial class NewsArticleController(
         if (!articles.Any())
             return BadRequest("Article was not found.");
 
-        var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        string upvotedSetKey = $"user:{userId}:upvotes";
-        string downvotedSetKey = $"user:{userId}:downvotes";
-        string readLaterSetKey = $"user:{userId}:readlater";
+        var upvotesIds = new List<string>();
+        var downvotesIds = new List<string>();
+        var bookmarksIds = new List<string>();
 
-        var upvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", upvotedSetKey, currentTimestamp, "+inf");
-        var downvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", downvotedSetKey, currentTimestamp, "+inf");
-        var bookmarks = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", readLaterSetKey, currentTimestamp, "+inf");
+        if (userId=="-1")
+        {
 
-        var upvotesIds = upvotes.ToArray().Select(x => x.ToString()).ToList();
-        var downvotesIds = downvotes.ToArray().Select(x => x.ToString()).ToList();
-        var bookmarksIds = bookmarks.ToArray().Select(x => x.ToString()).ToList();
+            var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            string upvotedSetKey = $"user:{userId}:upvotes";
+            string downvotedSetKey = $"user:{userId}:downvotes";
+            string readLaterSetKey = $"user:{userId}:readlater";
+
+            var upvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", upvotedSetKey, currentTimestamp, "+inf");
+            var downvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", downvotedSetKey, currentTimestamp, "+inf");
+            var bookmarks = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", readLaterSetKey, currentTimestamp, "+inf");
+
+            upvotesIds = upvotes.ToArray().Select(x => x.ToString()).ToList();
+            downvotesIds = downvotes.ToArray().Select(x => x.ToString()).ToList();
+            bookmarksIds = bookmarks.ToArray().Select(x => x.ToString()).ToList();
+
+        }
 
         var result = articles.Select(article => new NewsArticle
         {
@@ -186,7 +194,7 @@ public partial class NewsArticleController(
     public async Task<IActionResult> GetMostRecentNewsArticles(int skip, int take, [FromQuery] string[] followedCategories, string userId)
     {
         var articles = await _news
-        .Where(article => followedCategories.Contains(article.Category)) //article.Category.Intersect(followedCategories).Any probati
+        .Where(article => followedCategories.Contains(article.Category))
         .OrderByDescending(article => article.CreatedAt)
         .Skip(skip)
         .Take(take)
@@ -264,7 +272,7 @@ public partial class NewsArticleController(
     #endregion
 
     #region Upvote/Downvote
-    // videti u kom trenutku će se brisati iz ovih setova vesti
+
 
     [Authorize(Roles = "User")]
     [HttpPut("UpvoteNewsArticle/{userId}/{articleId}")]
@@ -415,7 +423,6 @@ public partial class NewsArticleController(
         var upvotedSetKey = $"user:{userId}:upvotes";
         var downvotedSetKey = $"user:{userId}:downvotes";
 
-        //proveriti jel moze bolje nekako  
         var upvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", upvotedSetKey, currentTimestamp, "+inf");
         var downvotes = await _provider.Connection.ExecuteAsync("ZRANGEBYSCORE", downvotedSetKey, currentTimestamp, "+inf");
 

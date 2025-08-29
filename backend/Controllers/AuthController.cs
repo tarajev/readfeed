@@ -52,7 +52,7 @@ public class AuthController(IConfiguration c, AuthService authService) : Control
     }
 }
 
-public class LoginRequest //ovo premestiti negde?
+public class LoginRequest 
 {
     public required string Email { get; set; }
     public required string Password { get; set; }
